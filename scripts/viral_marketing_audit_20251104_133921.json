@@ -1,0 +1,564 @@
+{
+  "timestamp": "2025-11-04T13:39:20.957530",
+  "system_status": "EXCELENTE",
+  "modules": {
+    "targets_audiences": {
+      "status": "completed",
+      "findings": [
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 25,
+          "content": "'targets_audiences': {'status': 'pending', 'findings': [], 'score': 0},",
+          "pattern": "audience|targeting|geo|country|age|gender|interests|lookalike"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 82,
+          "content": "def audit_targets_audiences(self):",
+          "pattern": "audience|targeting|geo|country|age|gender|interests|lookalike"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 87,
+          "content": "r'audience|targeting|geo|country|age|gender|interests|lookalike',",
+          "pattern": "audience|targeting|geo|country|age|gender|interests|lookalike"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 88,
+          "content": "r'min_age|max_age|age_min|age_max',",
+          "pattern": "audience|targeting|geo|country|age|gender|interests|lookalike"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 90,
+          "content": "r'16.*36|18.*35|target.*age'",
+          "pattern": "audience|targeting|geo|country|age|gender|interests|lookalike"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 97,
+          "content": "age_ranges = []",
+          "pattern": "audience|targeting|geo|country|age|gender|interests|lookalike"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 98,
+          "content": "audience_configs = []",
+          "pattern": "audience|targeting|geo|country|age|gender|interests|lookalike"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 104,
+          "content": "if any(country in content_lower for country in ['spain', 'españa', 'mexico', 'colombia', 'argentina']):",
+          "pattern": "audience|targeting|geo|country|age|gender|interests|lookalike"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 109,
+          "content": "age_ranges.append(finding)",
+          "pattern": "audience|targeting|geo|country|age|gender|interests|lookalike"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 112,
+          "content": "if any(term in content_lower for term in ['audience', 'targeting', 'lookalike']):",
+          "pattern": "audience|targeting|geo|country|age|gender|interests|lookalike"
+        }
+      ],
+      "score": 100,
+      "total_findings": 39,
+      "countries": 7,
+      "age_ranges": 10,
+      "audience_configs": 22
+    },
+    "budget_distribution": {
+      "status": "completed",
+      "findings": [
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 26,
+          "content": "'budget_distribution': {'status': 'pending', 'findings': [], 'score': 0},",
+          "pattern": "budget|daily_budget|lifetime_budget|CBO|allocate_budget"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 158,
+          "content": "def audit_budget_distribution(self):",
+          "pattern": "budget|daily_budget|lifetime_budget|CBO|allocate_budget"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 163,
+          "content": "r'budget|daily_budget|lifetime_budget|CBO|allocate_budget',",
+          "pattern": "budget|daily_budget|lifetime_budget|CBO|allocate_budget"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 165,
+          "content": "r'limit.*inversion|budget.*limit|max.*budget',",
+          "pattern": "budget|daily_budget|lifetime_budget|CBO|allocate_budget"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 166,
+          "content": "r'campaign.*budget|ad.*budget|spend.*limit'",
+          "pattern": "budget|daily_budget|lifetime_budget|CBO|allocate_budget"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 172,
+          "content": "budget_configs = []",
+          "pattern": "budget|daily_budget|lifetime_budget|CBO|allocate_budget"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 179,
+          "content": "if any(term in content_lower for term in ['budget', 'cbo', 'allocate']):",
+          "pattern": "budget|daily_budget|lifetime_budget|CBO|allocate_budget"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 180,
+          "content": "budget_configs.append(finding)",
+          "pattern": "budget|daily_budget|lifetime_budget|CBO|allocate_budget"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 185,
+          "content": "if any(term in content_lower for term in ['limit', 'max_budget', 'daily_limit']):",
+          "pattern": "budget|daily_budget|lifetime_budget|CBO|allocate_budget"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 192,
+          "content": "if budget_configs:",
+          "pattern": "budget|daily_budget|lifetime_budget|CBO|allocate_budget"
+        }
+      ],
+      "score": 100,
+      "budget_configs": 27,
+      "phase_configs": 4,
+      "limit_configs": 7
+    },
+    "pixels_capi_utms": {
+      "status": "completed",
+      "findings": [
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 233,
+          "content": "r'pixel_id|PIXEL_ID|facebook.*pixel|meta.*pixel',",
+          "pattern": "pixel_id|PIXEL_ID|facebook.*pixel|meta.*pixel"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 250,
+          "content": "if any(term in content_lower for term in ['pixel_id', 'pixel', 'facebook_pixel']):",
+          "pattern": "pixel_id|PIXEL_ID|facebook.*pixel|meta.*pixel"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 747,
+          "content": "recommendations.append(\"Configurar Facebook Pixel, CAPI y UTMs únicos por clip\")",
+          "pattern": "pixel_id|PIXEL_ID|facebook.*pixel|meta.*pixel"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 771,
+          "content": "grep -R --line-number -E \"pixel_id|PIXEL_ID|capi|utm_|utmSource|utm_source|utm_campaign\" . 2>/dev/null | head -20",
+          "pattern": "pixel_id|PIXEL_ID|facebook.*pixel|meta.*pixel"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 27,
+          "content": "'pixels_capi_utms': {'status': 'pending', 'findings': [], 'score': 0},",
+          "pattern": "capi|conversion.*api|capi_endpoint"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 228,
+          "content": "def audit_pixels_capi_utms(self):",
+          "pattern": "capi|conversion.*api|capi_endpoint"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 229,
+          "content": "\"\"\"3. Integración de Pixels, CAPI y UTMs\"\"\"",
+          "pattern": "capi|conversion.*api|capi_endpoint"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 230,
+          "content": "self.print_header(\"PIXELS, CAPI Y UTMS\", 2)",
+          "pattern": "capi|conversion.*api|capi_endpoint"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 234,
+          "content": "r'capi|conversion.*api|capi_endpoint',",
+          "pattern": "capi|conversion.*api|capi_endpoint"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 243,
+          "content": "capi_configs = []",
+          "pattern": "capi|conversion.*api|capi_endpoint"
+        }
+      ],
+      "score": 100,
+      "pixels": 19,
+      "capi": 22,
+      "utms": 10
+    },
+    "ml_orchestrator": {
+      "status": "completed",
+      "findings": [
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 163,
+          "content": "r'budget|daily_budget|lifetime_budget|CBO|allocate_budget',",
+          "pattern": "/brain/|evaluate_campaign|allocate_budget|update_model"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 307,
+          "content": "r'/brain/|evaluate_campaign|allocate_budget|update_model',",
+          "pattern": "/brain/|evaluate_campaign|allocate_budget|update_model"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 324,
+          "content": "if any(term in content_lower for term in ['/brain/', 'evaluate_campaign', 'allocate_budget']):",
+          "pattern": "/brain/|evaluate_campaign|allocate_budget|update_model"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 344,
+          "content": "status_items.append(\"❌ No se encontraron endpoints /brain/\")",
+          "pattern": "/brain/|evaluate_campaign|allocate_budget|update_model"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 750,
+          "content": "recommendations.append(\"Implementar endpoints /brain/ y modelos MiniLM para decisiones ML\")",
+          "pattern": "/brain/|evaluate_campaign|allocate_budget|update_model"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 772,
+          "content": "grep -R --line-number -E \"allocate_budget|Thompson|UCB|bandit|multiarmed|redistribute\" . 2>/dev/null | head -20",
+          "pattern": "/brain/|evaluate_campaign|allocate_budget|update_model"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 773,
+          "content": "grep -R --line-number -E \"brain|evaluate_campaign|update_model|predict|classifier|MiniLM\" . 2>/dev/null | head -20",
+          "pattern": "/brain/|evaluate_campaign|allocate_budget|update_model"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 308,
+          "content": "r'MiniLM|all-MiniLM-L6-v2|sentence.*transformer',",
+          "pattern": "MiniLM|all-MiniLM-L6-v2|sentence.*transformer"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 327,
+          "content": "if any(term in content_lower for term in ['minilm', 'transformer', 'model']):",
+          "pattern": "MiniLM|all-MiniLM-L6-v2|sentence.*transformer"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 750,
+          "content": "recommendations.append(\"Implementar endpoints /brain/ y modelos MiniLM para decisiones ML\")",
+          "pattern": "MiniLM|all-MiniLM-L6-v2|sentence.*transformer"
+        }
+      ],
+      "score": 100,
+      "brain_endpoints": 9,
+      "ml_models": 7,
+      "simulation_modes": 8
+    },
+    "uploaders_apis": {
+      "status": "completed",
+      "findings": [
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 383,
+          "content": "r'uploader\\.py|youtube_client|meta_client|tiktok_uploader',",
+          "pattern": "uploader\\.py|youtube_client|meta_client|tiktok_uploader"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 400,
+          "content": "if any(term in content_lower for term in ['uploader', 'client.py', 'youtube_client']):",
+          "pattern": "uploader\\.py|youtube_client|meta_client|tiktok_uploader"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 384,
+          "content": "r'upload.*video|post.*video|publish.*content',",
+          "pattern": "upload.*video|post.*video|publish.*content"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 385,
+          "content": "r'retry|backoff|rate.*limit|max.*attempts',",
+          "pattern": "retry|backoff|rate.*limit|max.*attempts"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 394,
+          "content": "retry_mechanisms = []",
+          "pattern": "retry|backoff|rate.*limit|max.*attempts"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 406,
+          "content": "if any(term in content_lower for term in ['retry', 'backoff', 'rate_limit']):",
+          "pattern": "retry|backoff|rate.*limit|max.*attempts"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 407,
+          "content": "retry_mechanisms.append(finding)",
+          "pattern": "retry|backoff|rate.*limit|max.*attempts"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 428,
+          "content": "if retry_mechanisms:",
+          "pattern": "retry|backoff|rate.*limit|max.*attempts"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 430,
+          "content": "status_items.append(f\"✅ Mecanismos de retry: {len(retry_mechanisms)}\")",
+          "pattern": "retry|backoff|rate.*limit|max.*attempts"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 432,
+          "content": "status_items.append(\"⚠️ No se encontraron mecanismos de retry\")",
+          "pattern": "retry|backoff|rate.*limit|max.*attempts"
+        }
+      ],
+      "score": 100,
+      "uploaders": 3,
+      "upload_functions": 4,
+      "retry_mechanisms": 10
+    },
+    "security_permissions": {
+      "status": "completed",
+      "findings": [
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 459,
+          "content": "r'SECRET_KEY|API_KEY|PRIVATE_KEY|client_secret',",
+          "pattern": "SECRET_KEY|API_KEY|PRIVATE_KEY|client_secret"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 468,
+          "content": "secret_keys = []",
+          "pattern": "SECRET_KEY|API_KEY|PRIVATE_KEY|client_secret"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 477,
+          "content": "if any(term in content_lower for term in ['secret_key', 'api_key', 'private_key']):",
+          "pattern": "SECRET_KEY|API_KEY|PRIVATE_KEY|client_secret"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 478,
+          "content": "secret_keys.append(finding)",
+          "pattern": "SECRET_KEY|API_KEY|PRIVATE_KEY|client_secret"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 497,
+          "content": "if secret_keys:",
+          "pattern": "SECRET_KEY|API_KEY|PRIVATE_KEY|client_secret"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 498,
+          "content": "status_items.append(f\"✅ Configuraciones de seguridad: {len(secret_keys)}\")",
+          "pattern": "SECRET_KEY|API_KEY|PRIVATE_KEY|client_secret"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 534,
+          "content": "'secret_keys': len(secret_keys),",
+          "pattern": "SECRET_KEY|API_KEY|PRIVATE_KEY|client_secret"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 776,
+          "content": "grep -R --line-number -E \"API_KEY|SECRET_KEY|PRIVATE_KEY|token:|password:|client_secret\" . 2>/dev/null | head -20",
+          "pattern": "SECRET_KEY|API_KEY|PRIVATE_KEY|client_secret"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 460,
+          "content": "r'token|password|auth|authentication',",
+          "pattern": "token|password|auth|authentication"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 469,
+          "content": "auth_tokens = []",
+          "pattern": "token|password|auth|authentication"
+        }
+      ],
+      "score": 100,
+      "secret_keys": 10,
+      "exposed_secrets": 0,
+      "auth_tokens": 10,
+      "https_configs": 10
+    },
+    "logs_metrics": {
+      "status": "completed",
+      "findings": [
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 31,
+          "content": "'logs_metrics': {'status': 'pending', 'findings': [], 'score': 0},",
+          "pattern": "exchange_events|campaign_actions|metrics|upload_results"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 542,
+          "content": "def audit_logs_metrics(self):",
+          "pattern": "exchange_events|campaign_actions|metrics|upload_results"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 547,
+          "content": "r'exchange_events|campaign_actions|metrics|upload_results',",
+          "pattern": "exchange_events|campaign_actions|metrics|upload_results"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 557,
+          "content": "metrics_calc = []",
+          "pattern": "exchange_events|campaign_actions|metrics|upload_results"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 564,
+          "content": "if any(term in content_lower for term in ['exchange_events', 'campaign_actions', 'metrics']):",
+          "pattern": "exchange_events|campaign_actions|metrics|upload_results"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 568,
+          "content": "metrics_calc.append(finding)",
+          "pattern": "exchange_events|campaign_actions|metrics|upload_results"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 586,
+          "content": "if metrics_calc:",
+          "pattern": "exchange_events|campaign_actions|metrics|upload_results"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 588,
+          "content": "status_items.append(f\"✅ Cálculo de métricas: {len(metrics_calc)}\")",
+          "pattern": "exchange_events|campaign_actions|metrics|upload_results"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 607,
+          "content": "self.audit_results['modules']['logs_metrics'] = {",
+          "pattern": "exchange_events|campaign_actions|metrics|upload_results"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 612,
+          "content": "'metrics_calc': len(metrics_calc),",
+          "pattern": "exchange_events|campaign_actions|metrics|upload_results"
+        }
+      ],
+      "score": 100,
+      "event_logs": 13,
+      "metrics_calc": 4,
+      "logging_system": 11
+    },
+    "legal_compliance": {
+      "status": "completed",
+      "findings": [
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 32,
+          "content": "'legal_compliance': {'status': 'pending', 'findings': [], 'score': 0}",
+          "pattern": "license_status|license|copyright|legal"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 618,
+          "content": "def audit_legal_compliance(self):",
+          "pattern": "license_status|license|copyright|legal"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 619,
+          "content": "\"\"\"8. Legalidad de Clips y Derechos\"\"\"",
+          "pattern": "license_status|license|copyright|legal"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 620,
+          "content": "self.print_header(\"LEGALIDAD DE CLIPS Y DERECHOS\", 2)",
+          "pattern": "license_status|license|copyright|legal"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 623,
+          "content": "r'license_status|license|copyright|legal',",
+          "pattern": "license_status|license|copyright|legal"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 626,
+          "content": "r'strike|claim|copyright.*claim|dmca'",
+          "pattern": "license_status|license|copyright|legal"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 629,
+          "content": "findings = self.search_patterns(patterns, \"Legalidad\")",
+          "pattern": "license_status|license|copyright|legal"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 632,
+          "content": "license_configs = []",
+          "pattern": "license_status|license|copyright|legal"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 635,
+          "content": "copyright_protection = []",
+          "pattern": "license_status|license|copyright|legal"
+        },
+        {
+          "file": "audit_viral_marketing_ai.py",
+          "line": 640,
+          "content": "if any(term in content_lower for term in ['license', 'copyright', 'legal']):",
+          "pattern": "license_status|license|copyright|legal"
+        }
+      ],
+      "score": 100,
+      "license_configs": 23,
+      "duration_limits": 9,
+      "filtering_system": 8
+    }
+  },
+  "critical_issues": [],
+  "recommendations": [],
+  "overall_score": 100.0,
+  "campaign_readiness": "LISTO PARA PRODUCCIÓN"
+}
