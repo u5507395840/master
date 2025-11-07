@@ -1,0 +1,53 @@
+﻿version: '3.8'
+
+services:
+  dogma-app:
+    build: .
+    container_name: dogma-main
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - REDIS_HOST=redis
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./security:/app/security
+    depends_on:
+      - redis
+    networks:
+      - dogma-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: dogma-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - dogma-network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: dogma-prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - dogma-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: dogma-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    networks:
+      - dogma-network
+    restart: unless-stopped
+
+networks:
+  dogma-network:
+    driver: bridge
