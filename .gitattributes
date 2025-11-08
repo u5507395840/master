@@ -1,0 +1,4 @@
+# Archivos que serán encriptados por git-crypt
+.env.encrypted filter=git-crypt diff=git-crypt
+secrets/** filter=git-crypt diff=git-crypt
+*.secret filter=git-crypt diff=git-crypt
