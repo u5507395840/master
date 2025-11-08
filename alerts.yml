@@ -1,0 +1,28 @@
+groups:
+  - name: dogma_alerts
+    interval: 30s
+    rules:
+      - alert: DogmaAppDown
+        expr: up{job="dogma-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "DOGMA App is DOWN"
+          description: "Instance {{ $labels.instance }} is unreachable"
+      
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes > 450000000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+      
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is DOWN"
