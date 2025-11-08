@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang='es'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>🎵 Stakas Music - Dashboard DOGMA 24/7</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff; min-height: 100vh; padding: 20px;
+        }
+        .header {
+            text-align: center; padding: 30px; margin-bottom: 30px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24, #ffa726);
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+        .header h1 { font-size: 3em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px; margin-bottom: 40px;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card h3 { color: #ffa726; margin-bottom: 15px; font-size: 1.3em; }
+        .stat-number { font-size: 2.5em; font-weight: bold; color: #00d4ff; margin-bottom: 10px; }
+        .stat-change { font-size: 0.9em; padding: 5px 10px; border-radius: 20px;
+            background: rgba(76, 175, 80, 0.2); color: #4caf50; }
+        .live { display: inline-block; width: 10px; height: 10px; background: #4caf50;
+            border-radius: 50%; animation: pulse 1s infinite; margin-right: 5px; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+    <div class='header'>
+        <h1>🎵 STAKAS MUSIC</h1>
+        <p>Dashboard Global DOGMA 24/7 <span class='live'></span>EN VIVO</p>
+    </div>
+    
+    <div class='stats-grid'>
+        <div class='stat-card'>
+            <h3>📊 Vistas Totales</h3>
+            <div class='stat-number'>542,150</div>
+            <span class='stat-change'>+23.5% esta semana</span>
+        </div>
+        <div class='stat-card'>
+            <h3>👥 Seguidores</h3>
+            <div class='stat-number'>34,780</div>
+            <span class='stat-change'>+18.2% esta semana</span>
+        </div>
+        <div class='stat-card'>
+            <h3>💰 Ingresos</h3>
+            <div class='stat-number'>€1,847</div>
+            <span class='stat-change'>+25.7% esta semana</span>
+        </div>
+        <div class='stat-card'>
+            <h3>🔥 Engagement</h3>
+            <div class='stat-number'>15.2%</div>
+            <span class='stat-change'>+12.3% esta semana</span>
+        </div>
+    </div>
+    
+    <div style='background: rgba(138, 43, 226, 0.1); border-radius: 15px; padding: 30px; margin-bottom: 40px;'>
+        <h2>🔮 Predicciones Virales IA</h2><br>
+        <div style='background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 10px; margin-bottom: 10px;'>
+            <strong>🎵 Midnight Vibes - DJ Stakas Pro</strong><br>
+            <span style='color: #4caf50; font-weight: bold; padding: 5px 10px; background: #4caf50; border-radius: 20px; color: white;'>89% VIRAL</span>
+        </div>
+    </div>
+    
+    <div style='text-align: center; color: #999; margin-top: 30px;'>
+        📊 Dashboard DOGMA - Stakas Music 24/7<br>
+        🤖 Sistema funcionando automáticamente
+    </div>
+    
+    <script>
+        setTimeout(() => location.reload(), 300000);
+    </script>
+</body>
+</html>
