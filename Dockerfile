@@ -1,22 +1,16 @@
-﻿# Dockerfile para DOGMA - Sistema de Marketing Viral AI
 FROM python:3.11-slim
 
 WORKDIR /app
-ENV PYTHONPATH=/app
-ENV USE_ENCRYPTED_VAULT=true
 
-RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
+# Copiar requirements si existe
+COPY requirements.txt* ./
+RUN pip3 install --no-cache-dir -r requirements.txt 2>/dev/null || echo "No requirements.txt"
 
-COPY requirements.txt .
+# Copiar código
 COPY . .
 
-RUN pip install --no-cache-dir -r requirements.txt
-RUN mkdir -p logs data/processed security/keys
+# Exponer puerto
+EXPOSE 8000
 
-ENV FLASK_ENV=production
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-EXPOSE 8080
-
-CMD ["python", "run.py", "--production"]
+# Comando por defecto (ajusta según tu app)
+CMD ["python3", "-m", "http.server", "8000"]
