@@ -1,0 +1,43 @@
+# Multi-stage build para reducir tamaño
+FROM python:3.11-slim as builder
+
+WORKDIR /build
+
+# Instalar dependencias de build
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements y instalar
+COPY requirements.txt* ./
+RUN pip install --no-cache-dir --user -r requirements.txt 2>/dev/null || \
+    pip install --no-cache-dir --user flask redis prometheus-client
+
+# Stage final
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copiar dependencias desde builder
+COPY --from=builder /root/.local /root/.local
+
+# Instalar curl para healthchecks
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Asegurar PATH
+ENV PATH=/root/.local/bin:$PATH
+
+# Copiar código
+COPY . .
+
+# Health check endpoint
+RUN echo 'from flask import Flask\napp = Flask(__name__)\n@app.route("/health")\ndef health(): return "OK", 200\n@app.route("/")\ndef index(): return "DOGMA 24/7 Running", 200\nif __name__ == "__main__": app.run(host="0.0.0.0", port=8000)' > app.py
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+CMD ["python3", "app.py"]
