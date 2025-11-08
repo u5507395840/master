@@ -8,3 +8,7 @@ numpy
 python-dotenv
 loguru
 pytest
+
+# OpenAI API
+openai==1.6.1
+tiktoken==0.5.2
