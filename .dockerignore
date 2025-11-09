@@ -1,22 +1,83 @@
-.git
-.gitignore
-.env
-.env.local
-*.key
-dogma-git-crypt.key
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.Python
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 *.so
-*.log
-.DS_Store
-node_modules
-.vscode
-.idea
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
 *.swp
 *.swo
-README.md
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Logs
+logs/*.log
+*.log
+
+# Data
+data/
+backups/
+*.mp4
+*.mp3
+*.wav
+
+# Secrets
+secrets/
+*.secret
+*.pem
+*.key
+.env.local
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+
+# Documentation
+README*.md
 docs/
+*.md
+
+# Tests
 tests/
+test_*.py
+*_test.py
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Temporary files
+tmp/
+temp/
+*.tmp

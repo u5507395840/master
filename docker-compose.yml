@@ -1,73 +1,61 @@
 version: '3.8'
 
 services:
-  # Aplicación principal DOGMA
-  dogma-app:
+  # API Principal (Esqueleto base)
+  api:
     build: .
-    container_name: dogma-main
     ports:
-      - "8000:8000"
+      - "8080:8080"
     environment:
-      - REDIS_HOST=redis
-      - PROMETHEUS_HOST=prometheus
-      - GRAFANA_HOST=grafana
-    depends_on:
-      - redis
-      - prometheus
-    networks:
-      - dogma-network
-    restart: unless-stopped
-
-  # Redis para caché
-  redis:
-    image: redis:7-alpine
-    container_name: dogma-redis
-    ports:
-      - "6379:6379"
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PORT=8080
     volumes:
-      - redis-data:/data
+      - ./data:/app/data
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
-      - dogma-network
-    restart: unless-stopped
+      - discografica-net
 
-  # Prometheus para métricas
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: dogma-prometheus
+  # Production Controller (Dashboard Gradio)
+  production-controller:
+    build: .
+    command: python production_controller.py
     ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-    networks:
-      - dogma-network
-    restart: unless-stopped
-
-  # Grafana para dashboards
-  grafana:
-    image: grafana/grafana:latest
-    container_name: dogma-grafana
-    ports:
-      - "3000:3000"
+      - "7860:7860"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
-      - grafana-data:/var/lib/grafana
+      - ./data:/app/data
+      - ./logs:/app/logs
     depends_on:
-      - prometheus
+      - api
     networks:
-      - dogma-network
-    restart: unless-stopped
+      - discografica-net
+
+  # Analytics Engine (Dashboard Streamlit)
+  analytics-engine:
+    build: .
+    command: streamlit run analytics_engine.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      - api
+    networks:
+      - discografica-net
 
 networks:
-  dogma-network:
+  discografica-net:
     driver: bridge
 
 volumes:
-  redis-data:
-  prometheus-data:
-  grafana-data:
+  data:
+  logs:
