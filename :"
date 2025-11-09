@@ -1,0 +1,10 @@
+[33m8ea2b65[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: Discográfica ML Pro 2.0 con OpenAI - Production Ready
+[33m8ddd00c[m Add comprehensive help documentation for less commands
+[33mbc6388e[m feat: Sistema Discográfica ML Pro 2.0 con OpenAI integrado
+[33m82969ff[m fix: add initial configuration for chatbot service and endpoints
+[33m0f16d9d[m fix: update chat endpoint to handle GET and POST requests, improve error handling, and enhance health check response
+[33mc11ef46[m fix: correct app.py multi-line syntax and Dockerfile
+[33m69a621e[m fix: correct app.py syntax for gunicorn
+[33m511550e[m fix: Correct app.py syntax error
+[33m0a8fcfe[m fix: Correct app.py syntax error
+[33maaa37a4[m fix: Add gunicorn to requirements and config
