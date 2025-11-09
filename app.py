@@ -1,80 +1,47 @@
-#!/usr/bin/env python3
-"""
-DOGMA 24/7 - Meta Ads & YouTube Analytics API
-Multi-platform marketing automation with AI
-"""
-from flask import Flask, jsonify, request
+from flask import Flask, render_template, request, jsonify
+from openai import OpenAI
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 @app.route('/')
 def index():
-    """Service info endpoint"""
-    return jsonify({
-        'service': 'DOGMA 24/7',
-        'version': '1.0.0',
-        'status': 'running',
-        'author': 'stakazo',
-        'features': [
-            'Meta Ads API',
-            'YouTube Data API',
-            'YouTube Analytics API',
-            'OpenAI GPT-4 Integration'
-        ]
-    })
+    return render_template('index.html')
 
 @app.route('/health')
 def health():
-    """Health check endpoint"""
-    return jsonify({'status': 'healthy'}), 200
+    return jsonify({"status": "ok"}), 200
 
-@app.route('/api/meta/status')
-def meta_status():
-    """Check Meta Ads API configuration"""
-    return jsonify({
-        'service': 'Meta Ads API',
-        'configured': bool(os.getenv('META_ACCESS_TOKEN'))
-    })
-
-@app.route('/api/youtube/status')
-def youtube_status():
-    """Check YouTube API configuration"""
-    return jsonify({
-        'service': 'YouTube API',
-        'configured': bool(os.getenv('YOUTUBE_CLIENT_ID'))
-    })
-
-@app.route('/api/openai/status')
-def openai_status():
-    """Check OpenAI API configuration"""
-    return jsonify({
-        'service': 'OpenAI API',
-        'configured': bool(os.getenv('OPENAI_API_KEY')),
-        'model': os.getenv('OPENAI_MODEL', 'gpt-4-turbo-preview')
-    })
-
-@app.route('/api/ai/generate-ad-copy', methods=['POST'])
-def generate_ad_copy_endpoint():
-    """Generate ad copy with AI"""
+@app.route('/chat', methods=['POST'])
+def chat():
     try:
-        from openai_client import get_openai_client
-        data = request.get_json()
+        data = request.json
+        user_message = data.get('message', '')
         
-        if not data:
-            return jsonify({'error': 'No data provided'}), 400
+        if not user_message:
+            return jsonify({"error": "No message"}), 400
         
-        client = get_openai_client()
-        result = client.generate_ad_copy(
-            product=data.get('product', ''),
-            target_audience=data.get('target_audience', ''),
-            tone=data.get('tone', 'profesional')
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "Eres un asistente útil."},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=500
         )
         
-        return jsonify(result)
+        return jsonify({
+            "response": response.choices[0].message.content,
+            "status": "success"
+        }), 200
+        
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 8000))
+    port = int(os.getenv('PORT', 8080))
     app.run(host='0.0.0.0', port=port, debug=False)
