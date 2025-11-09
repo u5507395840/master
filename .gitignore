@@ -158,3 +158,11 @@ config/secrets.json
 # API Keys y tokens
 *_secret.txt
 *_token.txt
+
+# Secrets y variables de entorno
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets/
