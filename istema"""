@@ -1,0 +1,17 @@
+*   [33m68d3898[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge branch 'main' of https://github.com/u5507395840/master
+[31m|[m[32m\[m  
+[31m|[m *   [33m48495e1[m Fix: Actualizar requirements.txt con versiones compatibles (openai 1.54.0, httpx 0.27.2)
+[31m|[m [33m|[m[34m\[m  
+* [33m|[m [34m\[m   [33m82969ff[m fix: add initial configuration for chatbot service and endpoints
+[33m|[m[34m\[m [33m\[m [34m\[m  
+[33m|[m [34m|[m[33m/[m [34m/[m  
+[33m|[m[33m/[m[34m|[m [34m/[m   
+[33m|[m [34m|[m[34m/[m    
+[33m|[m * [33mc11ef46[m fix: correct app.py multi-line syntax and Dockerfile
+* [36m|[m [33m0f16d9d[m fix: update chat endpoint to handle GET and POST requests, improve error handling, and enhance health check response
+[36m|[m[36m/[m  
+* [33m69a621e[m fix: correct app.py syntax for gunicorn
+* [33m511550e[m fix: Correct app.py syntax error
+* [33m0a8fcfe[m fix: Correct app.py syntax error
+* [33maaa37a4[m fix: Add gunicorn to requirements and config
+* [33me94f304[m fix: Add gunicorn to requirements and config
