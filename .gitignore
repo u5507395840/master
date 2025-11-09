@@ -145,3 +145,16 @@ htmlcov/
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 .ipynb_checkpoints/
 *.ipynb
+
+# Secrets y credenciales
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets/
+config/secrets.json
+
+# API Keys y tokens
+*_secret.txt
+*_token.txt
