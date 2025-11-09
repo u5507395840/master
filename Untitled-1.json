@@ -1,0 +1,9 @@
+{
+  "endpoints": {
+    "/": "This page",
+    "/chat": "Chat endpoint (GET/POST)",
+    "/health": "Health check"
+  },
+  "service": "Chatbot IA",
+  "version": "1.0"
+}
