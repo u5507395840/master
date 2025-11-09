@@ -1,206 +1,147 @@
 """
-📊 ANALYTICS ENGINE - DASHBOARD DE MÉTRICAS Y ANÁLISIS
-Puerto 8501 - Streamlit Interface
+Analytics Engine - Dashboard Streamlit para análisis ML
 """
 import streamlit as st
-import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
+import plotly.express as px
+import pandas as pd
+import numpy as np
 from datetime import datetime, timedelta
-import json
-from pathlib import Path
-from openai_orchestrator import get_orchestrator
 
 # Configuración de página
 st.set_page_config(
-    page_title="Discográfica ML - Analytics",
+    page_title="Analytics Engine",
     page_icon="📊",
     layout="wide"
 )
 
-# Instancia del orchestrator
-orchestrator = get_orchestrator()
-
-# Título principal
-st.title("📊 DISCOGRÁFICA ML - ANALYTICS ENGINE")
-st.markdown("### 🎵 Análisis en Tiempo Real con IA")
+# Título
+st.title("📊 Analytics Engine")
+st.markdown("### Análisis ML en Tiempo Real")
 
 # Sidebar
 with st.sidebar:
-    st.header("🎛️ Controles")
-    
-    time_range = st.selectbox(
-        "📅 Rango de Tiempo",
-        ["Últimas 24h", "Última semana", "Último mes", "Todo"]
-    )
-    
-    platform_filter = st.multiselect(
-        "📱 Plataformas",
-        ["TikTok", "Instagram", "YouTube", "Facebook"],
-        default=["TikTok", "Instagram"]
-    )
+    st.header("⚙️ Configuración")
+    time_range = st.selectbox("Rango de Tiempo", ["Últimas 24h", "Última semana", "Último mes"])
+    platforms = st.multiselect("Plataformas", ["TikTok", "Instagram", "YouTube", "Meta Ads"], default=["TikTok", "Instagram"])
     
     st.markdown("---")
-    st.markdown("### 🤖 Análisis IA")
-    
-    if st.button("🔄 Actualizar Datos"):
-        st.rerun()
+    st.metric("Campañas Activas", "3")
+    st.metric("Total Invertido", "$150")
 
-# Métricas principales (KPIs)
+# Generar datos simulados
+def generate_mock_data(days=7):
+    dates = pd.date_range(end=datetime.now(), periods=days, freq='D')
+    data = {
+        'date': dates,
+        'views': np.random.randint(5000, 25000, days),
+        'likes': np.random.randint(400, 2100, days),
+        'shares': np.random.randint(50, 450, days),
+        'engagement_rate': np.random.uniform(5.0, 12.0, days)
+    }
+    return pd.DataFrame(data)
+
+df = generate_mock_data()
+
+# Métricas principales
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.metric(
-        label="👁️ Alcance Total",
-        value="1.2M",
-        delta="+15.3%"
+        "Total Views",
+        f"{df['views'].sum():,}",
+        f"+{df['views'].iloc[-1] - df['views'].iloc[-2]:,}"
     )
 
 with col2:
     st.metric(
-        label="💬 Engagement Rate",
-        value="8.5%",
-        delta="+2.1%"
+        "Total Engagement",
+        f"{df['likes'].sum():,}",
+        f"+{((df['likes'].iloc[-1] / df['likes'].iloc[-2] - 1) * 100):.1f}%"
     )
 
 with col3:
     st.metric(
-        label="🎵 Streams",
-        value="450K",
-        delta="+23%"
+        "Avg Engagement Rate",
+        f"{df['engagement_rate'].mean():.2f}%",
+        f"+{(df['engagement_rate'].iloc[-1] - df['engagement_rate'].mean()):.2f}%"
     )
 
 with col4:
     st.metric(
-        label="💰 ROI",
-        value="3.2x",
-        delta="+0.5x"
+        "Viral Score",
+        "7.2/10",
+        "+0.8"
     )
+
+st.markdown("---")
 
 # Gráficos
-st.markdown("---")
-
-# Row 1: Engagement por plataforma + Tendencia temporal
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("📱 Engagement por Plataforma")
-    
-    # Datos dummy
-    df_platform = pd.DataFrame({
-        'Plataforma': ['TikTok', 'Instagram', 'YouTube', 'Facebook'],
-        'Engagement': [12.5, 8.3, 5.2, 3.1],
-        'Alcance': [800000, 450000, 320000, 180000]
-    })
-    
-    fig = px.bar(
-        df_platform,
-        x='Plataforma',
-        y='Engagement',
-        color='Plataforma',
-        title='Engagement Rate por Plataforma (%)'
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    st.subheader("📈 Views Over Time")
+    fig_views = px.line(df, x='date', y='views', markers=True)
+    fig_views.update_layout(height=300)
+    st.plotly_chart(fig_views, use_container_width=True)
 
 with col2:
-    st.subheader("📈 Tendencia de Alcance")
-    
-    # Datos dummy temporales
-    dates = pd.date_range(start='2024-11-01', end='2024-11-09', freq='D')
-    df_trend = pd.DataFrame({
-        'Fecha': dates,
-        'Alcance': [50000, 75000, 120000, 180000, 250000, 320000, 420000, 580000, 750000]
-    })
-    
-    fig = px.line(
-        df_trend,
-        x='Fecha',
-        y='Alcance',
-        title='Evolución del Alcance (últimos 9 días)',
-        markers=True
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    st.subheader("💚 Engagement Rate")
+    fig_engagement = px.line(df, x='date', y='engagement_rate', markers=True)
+    fig_engagement.update_layout(height=300)
+    st.plotly_chart(fig_engagement, use_container_width=True)
 
-# Row 2: Top Tracks + Distribución de budget
+# Análisis por plataforma
 st.markdown("---")
+st.subheader("📱 Análisis por Plataforma")
+
+platform_data = pd.DataFrame({
+    'Platform': ['TikTok', 'Instagram', 'YouTube'],
+    'Views': [25000, 15000, 5230],
+    'Engagement': [8.5, 7.2, 5.8],
+    'Cost': [0, 0, 0]
+})
+
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("🎵 Top Tracks")
-    
-    df_tracks = pd.DataFrame({
-        'Track': ['Noche de Trap', 'Fuego', 'En la Calle', 'Vibras'],
-        'Streams': [450000, 380000, 290000, 210000],
-        'Engagement': [12.5, 10.2, 8.9, 7.1]
-    })
-    
-    st.dataframe(
-        df_tracks.style.background_gradient(subset=['Streams'], cmap='Blues'),
-        use_container_width=True
-    )
+    fig_platform = px.bar(platform_data, x='Platform', y='Views', color='Platform')
+    st.plotly_chart(fig_platform, use_container_width=True)
 
 with col2:
-    st.subheader("💰 Distribución de Presupuesto")
-    
-    df_budget = pd.DataFrame({
-        'Plataforma': ['TikTok', 'Instagram', 'YouTube', 'Meta Ads'],
-        'Inversión': [400, 350, 250, 300]
-    })
-    
-    fig = px.pie(
-        df_budget,
-        values='Inversión',
-        names='Plataforma',
-        title='Distribución del Presupuesto ($)'
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    fig_engagement_platform = px.pie(platform_data, values='Views', names='Platform')
+    st.plotly_chart(fig_engagement_platform, use_container_width=True)
 
-# Análisis IA
+# Predicciones ML
 st.markdown("---")
-st.subheader("🤖 Análisis Inteligente con OpenAI")
+st.subheader("🤖 Predicciones ML")
 
-col1, col2 = st.columns([2, 1])
+col1, col2, col3 = st.columns(3)
 
 with col1:
-    # Métricas dummy para análisis
-    dummy_metrics = {
-        "total_reach": 1200000,
-        "engagement_rate": 8.5,
-        "roi": 3.2,
-        "top_platform": "TikTok",
-        "growth_rate": 15.3
-    }
-    
-    if st.button("🔍 Generar Análisis IA", type="primary"):
-        with st.spinner("Analizando datos con OpenAI..."):
-            analysis = orchestrator.analyze_metrics(dummy_metrics)
-            
-            st.success("✅ Análisis completado")
-            
-            st.markdown(f"### 💡 Recomendación Principal")
-            st.info(analysis.get('recommendation', 'No disponible'))
-            
-            st.markdown(f"### 🎯 Confianza: {analysis.get('confidence', 0)*100:.0f}%")
-            
-            if 'actions' in analysis:
-                st.markdown("### 📋 Acciones Recomendadas")
-                for i, action in enumerate(analysis['actions'], 1):
-                    st.markdown(f"{i}. {action}")
-            
-            if 'opportunities' in analysis:
-                st.markdown("### 🚀 Oportunidades Detectadas")
-                for opp in analysis['opportunities']:
-                    st.markdown(f"- {opp}")
+    st.info("**Probabilidad Viral:** 72%")
+    st.progress(0.72)
 
 with col2:
-    st.markdown("### 📊 Métricas Clave")
-    st.json(dummy_metrics)
+    st.info("**Reach Estimado 24h:** 35,000")
+    st.progress(0.65)
+
+with col3:
+    st.info("**ROI Proyectado:** 450%")
+    st.progress(0.90)
 
 # Footer
 st.markdown("---")
-st.markdown("""
-<div style='text-align: center'>
-    <p>🎵 <strong>Discográfica ML System</strong> | Desarrollado con ❤️ para artistas independientes</p>
-    <p>🤖 Powered by OpenAI GPT-4 | 📊 Real-time Analytics</p>
-</div>
-""", unsafe_allow_html=True)
+st.markdown("💜 **Stakazo Discográfica ML System** | Powered by Ultralytics & OpenAI")
+
+# Auto-refresh cada 30 segundos
+st.markdown(
+    """
+    <script>
+    setTimeout(function(){
+        window.location.reload();
+    }, 30000);
+    </script>
+    """,
+    unsafe_allow_html=True
+)

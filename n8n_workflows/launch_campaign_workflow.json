@@ -1,0 +1,48 @@
+{
+  "name": "Launch Music Campaign",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerOn": "webhook"
+      },
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Generate video with LongCat\nreturn items;"
+      },
+      "name": "Generate Video",
+      "type": "n8n-nodes-base.function",
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Upload to platforms\nreturn items;"
+      },
+      "name": "Upload to Platforms",
+      "type": "n8n-nodes-base.function",
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Launch Meta Ads\nreturn items;"
+      },
+      "name": "Launch Ads",
+      "type": "n8n-nodes-base.function",
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [[{"node": "Generate Video", "type": "main", "index": 0}]]
+    },
+    "Generate Video": {
+      "main": [[{"node": "Upload to Platforms", "type": "main", "index": 0}]]
+    },
+    "Upload to Platforms": {
+      "main": [[{"node": "Launch Ads", "type": "main", "index": 0}]]
+    }
+  }
+}
