@@ -1,61 +1,33 @@
 version: '3.8'
 
 services:
-  # API Principal (Esqueleto base)
-  api:
+  backend:
     build: .
+    command: uvicorn executive_api:app --host 0.0.0.0 --port 8000 --reload
     ports:
-      - "8080:8080"
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - PORT=8080
-    volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - discografica-net
-
-  # Production Controller (Dashboard Gradio)
-  production-controller:
-    build: .
-    command: python production_controller.py
-    ports:
-      - "7860:7860"
+      - "8000:8000"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
-    depends_on:
-      - api
+      - .:/app
     networks:
       - discografica-net
 
-  # Analytics Engine (Dashboard Streamlit)
-  analytics-engine:
+  dashboard:
     build: .
-    command: streamlit run analytics_engine.py --server.port 8501 --server.address 0.0.0.0
+    command: streamlit run executive_dashboard.py --server.port 8501 --server.address 0.0.0.0
     ports:
       - "8501:8501"
     environment:
+      - API_URL=http://backend:8000
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
+      - .:/app
     depends_on:
-      - api
+      - backend
     networks:
       - discografica-net
 
 networks:
   discografica-net:
     driver: bridge
-
-volumes:
-  data:
-  logs:
