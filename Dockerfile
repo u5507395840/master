@@ -1,43 +1,37 @@
-FROM python:3.11-slim
+# --- Etapa 1: Build ---
+# Usar una imagen oficial de Python como base
+FROM python:3.11-slim AS builder
 
-ENV PYTHONUNBUFFERED=1
-ENV PORT=8080
-ENV DUMMY_MODE=true
-
+# Establecer el directorio de trabajo en el contenedor
 WORKDIR /app
 
-# Instalar dependencias del sistema
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    git \
-    curl \
-    ffmpeg \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copiar requirements
+# Copiar solo el archivo de requerimientos para aprovechar el cache de Docker
 COPY requirements.txt .
 
-# Instalar dependencias Python
+# Instalar las dependencias de Python
 RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir -r requirements.txt
 
-# Copiar código fuente
+# --- Etapa 2: Producción ---
+FROM python:3.11-slim
+
+# Establecer el directorio de trabajo
+WORKDIR /app
+
+# Copiar las dependencias instaladas desde la etapa de 'builder'
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copiar el código de la aplicación
 COPY . .
 
-# Crear directorios necesarios
-RUN mkdir -p logs output/clips tools/verification/reports
+# Exponer el puerto en el que corre la aplicación
+EXPOSE 8080
 
-# Exponer puertos
-EXPOSE 8080 7860 8501
+# Variable de entorno para asegurar que estamos en modo producción
+ENV DUMMY_MODE="false"
+ENV PYTHONUNBUFFERED=1
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
-
-# Script de inicio
-CMD ["bash", "-c", "python3 app.py & python3 production_controller.py & streamlit run analytics_engine.py --server.port 8501 --server.address 0.0.0.0 & wait"]
+# Comando para ejecutar la aplicación cuando el contenedor se inicie
+# Usamos gunicorn para un servidor de producción más robusto que el de desarrollo de Flask
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "4", "app:app"]

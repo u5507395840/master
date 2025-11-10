@@ -1,139 +1,119 @@
 """
-📱 CAMPAIGN LAUNCHER - LANZAMIENTO AUTOMÁTICO DE CAMPAÑAS
-Gestiona publicación multi-plataforma
+Campaign Launcher - Orquestador de Campañas
+Automatiza el proceso completo de lanzamiento de una campaña musical.
 """
+import os
 import logging
-import uuid
-from datetime import datetime
-from typing import Dict, Optional
+import time
+from typing import Dict
 
-logging.basicConfig(level=logging.INFO)
+# Módulos del sistema
+from core.database import db
+from orchestrator_ml.copy_generator import copy_generator
+from orchestrator_ml.video_generator import generate_video_from_prompt
+from integrations import meta_poster, tiktok_poster, youtube_uploader
+
 logger = logging.getLogger(__name__)
 
-
 class CampaignLauncher:
-    """Lanzador de campañas multi-plataforma"""
-    
+    """Orquesta el lanzamiento de campañas de principio a fin."""
+
     def __init__(self):
-        self.dummy_mode = True  # Cambiar a False cuando tengas APIs reales
-    
-    def launch(
-        self,
-        track_info: Dict,
-        strategy: Dict,
-        video_path: Optional[str] = None
-    ) -> Dict:
-        """Lanza campaña completa en todas las plataformas"""
+        self.dummy_mode = os.getenv("DUMMY_MODE", "true").lower() == "true"
+        if self.dummy_mode:
+            logger.warning("El lanzador de campañas está operando en DUMMY_MODE. No se realizarán publicaciones reales.")
+
+    def launch_campaign(self, campaign_id: str) -> bool:
+        """
+        Ejecuta el flujo completo de lanzamiento para una campaña existente en la DB.
+        
+        Returns:
+            bool: True si el lanzamiento fue exitoso, False en caso contrario.
+        """
+        logger.info(f"🚀 Iniciando lanzamiento de campaña: {campaign_id}")
+
+        campaign = db.get_campaign(campaign_id)
+        if not campaign:
+            logger.error(f"Campaña '{campaign_id}' no encontrada en la base de datos. Abortando.")
+            return False
+        
+        db.update_campaign_status(campaign_id, "processing")
+        db.log("INFO", "Launcher", f"Campaña '{campaign_id}' en estado 'processing'.")
+
         try:
-            campaign_id = str(uuid.uuid4())
-            logger.info(f"🚀 Lanzando campaña: {campaign_id}")
+            campaign = self._generate_creative_assets(campaign)
+            publication_results = self._distribute_to_platforms(campaign)
             
-            results = {
-                "campaign_id": campaign_id,
-                "timestamp": datetime.now().isoformat(),
-                "track": track_info,
-                "platforms": {}
-            }
+            if 'metrics' not in campaign or campaign['metrics'] is None:
+                campaign['metrics'] = {}
+            campaign['metrics']['publication_results'] = publication_results
+            db.save_campaign(campaign)
+
+            final_status = "active" if any(res.get('status') == 'success' for res in publication_results.values()) else "failed"
+            db.update_campaign_status(campaign_id, final_status)
+            db.log("INFO", "Launcher", f"Campaña '{campaign_id}' finalizada con estado '{final_status}'.")
             
-            # TikTok
-            if "TikTok" in strategy.get('platforms', []):
-                logger.info("📱 Publicando en TikTok...")
-                tiktok_result = self._post_to_tiktok(track_info, strategy, video_path)
-                results['platforms']['TikTok'] = tiktok_result
-            
-            # Instagram
-            if "Instagram" in strategy.get('platforms', []):
-                logger.info("📷 Publicando en Instagram...")
-                ig_result = self._post_to_instagram(track_info, strategy, video_path)
-                results['platforms']['Instagram'] = ig_result
-            
-            # YouTube
-            if "YouTube" in strategy.get('platforms', []):
-                logger.info("🎥 Subiendo a YouTube...")
-                yt_result = self._post_to_youtube(track_info, strategy, video_path)
-                results['platforms']['YouTube'] = yt_result
-            
-            # Meta Ads
-            logger.info("💰 Configurando Meta Ads...")
-            meta_result = self._create_meta_ads(track_info, strategy)
-            results['platforms']['Meta Ads'] = meta_result
-            
-            # Estimaciones
-            results['estimated_reach'] = self._calculate_estimated_reach(strategy)
-            results['estimated_engagement'] = f"{strategy.get('budget_allocation', {}).get('TikTok', 0.4) * 10:.1f}%"
-            
-            logger.info(f"✅ Campaña lanzada: {campaign_id}")
-            return results
-            
+            logger.info(f"✅ Lanzamiento de campaña '{campaign_id}' completado con estado '{final_status}'.")
+            return final_status != "failed"
+
         except Exception as e:
-            logger.error(f"❌ Error lanzando campaña: {e}")
-            raise
-    
-    def _post_to_tiktok(self, track_info: Dict, strategy: Dict, video_path: Optional[str]) -> Dict:
-        """Publica en TikTok"""
-        if self.dummy_mode:
-            return {
-                "status": "success",
-                "post_id": f"tiktok_{uuid.uuid4().hex[:8]}",
-                "url": "https://tiktok.com/@artist/video/dummy",
-                "caption": strategy.get('caption', ''),
-                "hashtags": strategy.get('hashtags', [])[:5]
-            }
+            logger.critical(f"Error crítico durante el lanzamiento de la campaña '{campaign_id}': {e}", exc_info=True)
+            db.update_campaign_status(campaign_id, "failed")
+            db.log("ERROR", "Launcher", f"Lanzamiento fallido para '{campaign_id}': {e}")
+            return False
+
+    def _generate_creative_assets(self, campaign: Dict) -> Dict:
+        """Genera captions, hashtags y video si no existen."""
+        if not campaign.get('captions'):
+            logger.info(f"Generando captions para la campaña '{campaign['id']}'...")
+            campaign['captions'] = copy_generator.generate_captions(
+                track_name=campaign['track'], artist=campaign['artist'],
+                genre=campaign['genre'], mood=campaign.get('mood', 'energetic'), count=3
+            )
+            db.save_campaign(campaign)
         
-        # TODO: Implementar TikTok API real
-        return {"status": "pending", "message": "TikTok API no configurada"}
-    
-    def _post_to_instagram(self, track_info: Dict, strategy: Dict, video_path: Optional[str]) -> Dict:
-        """Publica en Instagram"""
-        if self.dummy_mode:
-            return {
-                "status": "success",
-                "post_id": f"ig_{uuid.uuid4().hex[:8]}",
-                "url": "https://instagram.com/p/dummy",
-                "caption": strategy.get('caption', ''),
-                "hashtags": strategy.get('hashtags', [])[:30]
-            }
+        if campaign.get('video_prompt') and not campaign.get('video_url'):
+            logger.info(f"Generando video para la campaña '{campaign['id']}'...")
+            video_path = generate_video_from_prompt(campaign['video_prompt'])
+            campaign['video_url'] = video_path
+            db.save_campaign(campaign)
+            
+        return campaign
+
+    def _distribute_to_platforms(self, campaign: Dict) -> Dict:
+        """Publica el contenido en las plataformas seleccionadas."""
+        results = {}
+        video_path = campaign.get('video_url')
+        caption = campaign.get('captions', [""])[0]
+
+        if not video_path:
+            logger.error("No hay video para publicar. Abortando distribución.")
+            return results
+
+        for platform in campaign.get('platforms', []):
+            logger.info(f"Distribuyendo en la plataforma: {platform}")
+            try:
+                if self.dummy_mode:
+                    results[platform] = {"status": "success", "post_id": f"dummy_{platform}_123"}
+                    time.sleep(1)
+                    continue
+
+                if platform.lower() == 'instagram':
+                    token = os.getenv("META_ACCESS_TOKEN")
+                    if not token: raise ValueError("META_ACCESS_TOKEN no configurado.")
+                    results[platform] = meta_poster.post_reel(video_path, caption, token)
+                elif platform.lower() == 'tiktok':
+                    api_key = os.getenv("TIKTOK_API_KEY")
+                    if not api_key: raise ValueError("TIKTOK_API_KEY no configurado.")
+                    results[platform] = tiktok_poster.post_video(video_path, caption, api_key)
+                elif platform.lower() == 'youtube':
+                    creds = None
+                    results[platform] = youtube_uploader.upload_short(video_path, campaign['track'], caption, creds)
+                
+            except Exception as e:
+                logger.error(f"Fallo al publicar en {platform}: {e}")
+                results[platform] = {"status": "failed", "error": str(e)}
         
-        # TODO: Implementar Instagram API real
-        return {"status": "pending", "message": "Instagram API no configurada"}
-    
-    def _post_to_youtube(self, track_info: Dict, strategy: Dict, video_path: Optional[str]) -> Dict:
-        """Sube a YouTube"""
-        if self.dummy_mode:
-            return {
-                "status": "success",
-                "video_id": f"yt_{uuid.uuid4().hex[:8]}",
-                "url": "https://youtube.com/watch?v=dummy",
-                "title": f"{track_info.get('artist')} - {track_info.get('title')}",
-                "description": track_info.get('description', '')
-            }
-        
-        # TODO: Implementar YouTube API real
-        return {"status": "pending", "message": "YouTube API no configurada"}
-    
-    def _create_meta_ads(self, track_info: Dict, strategy: Dict) -> Dict:
-        """Crea campaña de Meta Ads"""
-        if self.dummy_mode:
-            return {
-                "status": "success",
-                "campaign_id": f"meta_{uuid.uuid4().hex[:8]}",
-                "budget": track_info.get('budget', 0) * strategy.get('budget_allocation', {}).get('Instagram', 0.35),
-                "targeting": strategy.get('target_audience', 'Gen Z'),
-                "url": "https://business.facebook.com/dummy"
-            }
-        
-        # TODO: Implementar Meta Ads API real
-        return {"status": "pending", "message": "Meta Ads API no configurada"}
-    
-    def _calculate_estimated_reach(self, strategy: Dict) -> str:
-        """Calcula alcance estimado basado en presupuesto"""
-        # Fórmula dummy: $1 = 1000 impresiones
-        total_budget = sum(strategy.get('budget_allocation', {}).values()) * 500
-        estimated = int(total_budget * 1000)
-        
-        if estimated >= 1000000:
-            return f"{estimated/1000000:.1f}M"
-        elif estimated >= 1000:
-            return f"{estimated/1000:.0f}K"
-        else:
-            return str(estimated)
+        return results
+
+campaign_launcher = CampaignLauncher()
