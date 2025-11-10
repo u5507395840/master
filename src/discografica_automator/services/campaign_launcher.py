@@ -8,10 +8,10 @@ import time
 from typing import Dict
 
 # Módulos del sistema
-from core.database import db
-from orchestrator_ml.copy_generator import copy_generator
-from orchestrator_ml.video_generator import generate_video_from_prompt
-from integrations import meta_poster, tiktok_poster, youtube_uploader
+from discografica_automator.core.database import db
+from discografica_automator.services.copy_generator import copy_generator
+from discografica_automator.services.video_generator import generate_video_from_prompt
+from discografica_automator.integrations import meta_poster, tiktok_poster, youtube_uploader
 
 logger = logging.getLogger(__name__)
 
