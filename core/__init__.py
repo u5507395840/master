@@ -1,3 +1,2 @@
-# Core package for Discográfica ML Pro
-from .main import start
-__all__ = ["start"]
+"""Core system modules"""
+__version__ = "1.0.0"

@@ -1,8 +1,26 @@
+# Core
 flask==3.0.0
+flask-cors==4.0.0
 gunicorn==21.2.0
 python-dotenv==1.0.0
+
+# System
 psutil==5.9.6
+
+# AI/ML
 openai==1.3.0
+
+# Telegram
 python-telegram-bot==20.7
+
+# Dashboards
 gradio==4.8.0
+streamlit==1.29.0
+
+# Utils
 requests==2.31.0
+python-dateutil==2.8.2
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0
