@@ -110,3 +110,47 @@ df = generate_mock_data()
 #     """,
 #     unsafe_allow_html=True
 # )
+
+def get_youtube_performance_report(days: int = 30) -> dict:
+    """
+    Simula la obtención de un informe de rendimiento de campañas de Meta Ads
+    enfocadas en dirigir tráfico a YouTube.
+    """
+    # Datos simulados que reflejan el rendimiento de diferentes estrategias
+    report = {
+        "report_duration_days": days,
+        "youtube_channel_url": "https://www.youtube.com/channel/UC-ejd_S_a_i3c_d_s_e_g",
+        "total_spend_eur": 150.75,
+        "total_clicks_to_youtube": 850,
+        "campaign_performance": [
+            {
+                "campaign_name": "Campaña Test A - Fans de Artistas Similares",
+                "spend_eur": 50.25,
+                "clicks": 450,
+                "ctr": "5.2%",
+                "cpc_eur": 0.11,
+                "target_audience": "Usuarios de Instagram y Facebook en España, 18-25 años, interesados en Rosalia, C. Tangana, y Bad Gyal.",
+                "ad_creative_type": "Video corto (Reel) mostrando el estribillo del videoclip."
+            },
+            {
+                "campaign_name": "Campaña Test B - Audiencia Lookalike",
+                "spend_eur": 50.50,
+                "clicks": 250,
+                "ctr": "2.8%",
+                "cpc_eur": 0.20,
+                "target_audience": "Audiencia Lookalike (1%) basada en los seguidores de Instagram del artista.",
+                "ad_creative_type": "Imagen estática con un titular llamativo sobre el nuevo lanzamiento."
+            },
+            {
+                "campaign_name": "Campaña Test C - Intereses Genéricos (Música Urbana)",
+                "spend_eur": 50.00,
+                "clicks": 150,
+                "ctr": "1.5%",
+                "cpc_eur": 0.33,
+                "target_audience": "Usuarios interesados en 'Música urbana', 'Trap' y 'Reggaeton' en general.",
+                "ad_creative_type": "Anuncio de carrusel mostrando varias escenas del videoclip."
+            }
+        ],
+        "summary": "La campaña dirigida a fans de artistas similares (Test A) ha mostrado el mejor rendimiento con un CPC bajo y un CTR alto. La audiencia Lookalike (Test B) es prometedora pero necesita optimización. La audiencia genérica (Test C) es la menos rentable."
+    }
+    return report
