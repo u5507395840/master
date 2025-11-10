@@ -71,5 +71,5 @@ def update_table(n):
         return [], "Error procesando los datos."
 
 if __name__ == '__main__':
-    # El dashboard se ejecutará en el puerto 8050 para no colisionar con la API (8080)
-    app.run_server(debug=True, host='0.0.0.0', port=8050)
+    # CORRECCIÓN: Usamos app.run() en lugar del obsoleto app.run_server()
+    app.run(debug=True, host='0.0.0.0', port=8050)
