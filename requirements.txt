@@ -1,70 +1,8 @@
-# ════════════════════════════════════════════════════════════════
-# DISCOGRÁFICA ML SYSTEM - COMPLETE DEPENDENCIES
-# ════════════════════════════════════════════════════════════════
-
-# Core Framework
 flask==3.0.0
 gunicorn==21.2.0
 python-dotenv==1.0.0
-werkzeug==3.0.1
 psutil==5.9.6
-
-# OpenAI Integration
 openai==1.3.0
-
-# Web & API
-requests==2.31.0
-httpx==0.25.2
-
-# Dashboards
-gradio==4.8.0
-streamlit==1.29.0
-plotly==5.18.0
-pandas==2.1.4
-
-# Machine Learning
-scikit-learn==1.3.2
-numpy==1.26.2
-
-# Computer Vision
-ultralytics==8.0.227
-opencv-python-headless==4.8.1.78
-Pillow==10.1.0
-
-# Video Processing
-moviepy==1.0.3
-imageio==2.33.1
-imageio-ffmpeg==0.4.9
-
-# Meta/Facebook Ads
-facebook-business==18.0.2
-
-# Google APIs (YouTube)
-google-api-python-client==2.108.0
-google-auth-httplib2==0.2.0
-google-auth-oauthlib==1.2.0
-
-# Telegram
 python-telegram-bot==20.7
-
-# Database
-sqlalchemy==2.0.23
-alembic==1.13.0
-
-# Utilities
-pyyaml==6.0.1
-python-dateutil==2.8.2
-pytz==2023.3
-beautifulsoup4==4.12.2
-lxml==4.9.4
-
-# Async
-aiohttp==3.9.1
-asyncio==3.4.3
-
-# Monitoring & Logging
-loguru==0.7.2
-
-# Testing
-pytest==7.4.3
-pytest-asyncio==0.21.1
+gradio==4.8.0
+requests==2.31.0

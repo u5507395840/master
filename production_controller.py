@@ -1,149 +1,64 @@
-"""
-Production Controller - Dashboard Gradio para control de campañas
-"""
+"""Production Controller - Dashboard REAL"""
 import gradio as gr
 import os
-import json
 from datetime import datetime
-import requests
+from orchestrator_ml.copy_generator import copy_generator
 
-# Configuración
-API_BASE = os.getenv("API_BASE", "http://localhost:8080")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+campaigns_db = []
 
-class ProductionController:
-    def __init__(self):
-        self.campaign_status = "idle"
-        self.last_launch = None
-    
-    def launch_viral_campaign(self, artist_name, track_name, video_prompt, platforms):
-        """Lanzar campaña viral completa"""
-        
-        self.campaign_status = "launching"
-        self.last_launch = datetime.now()
-        
-        result = {
-            "status": "success",
-            "timestamp": self.last_launch.isoformat(),
-            "artist": artist_name,
-            "track": track_name,
-            "platforms": platforms,
-            "video_generated": False,
-            "campaigns_created": []
-        }
-        
-        # Simular generación de video
-        if video_prompt:
-            result["video_generated"] = True
-            result["video_url"] = f"https://storage.example.com/videos/{track_name.lower().replace(' ', '_')}.mp4"
-        
-        # Simular creación de campañas
-        for platform in platforms:
-            campaign = {
-                "platform": platform,
-                "status": "active",
-                "budget": 50 if platform == "Meta" else 0,
-                "estimated_reach": 10000
-            }
-            result["campaigns_created"].append(campaign)
-        
-        self.campaign_status = "active"
-        
-        return json.dumps(result, indent=2)
-    
-    def get_campaign_metrics(self):
-        """Obtener métricas de campañas activas"""
-        
-        if self.campaign_status == "idle":
-            return "No hay campañas activas"
-        
-        metrics = {
-            "status": self.campaign_status,
-            "last_launch": self.last_launch.isoformat() if self.last_launch else None,
-            "active_campaigns": 3,
-            "total_reach": 45230,
-            "engagement_rate": 8.5,
-            "viral_score": 7.2,
-            "platforms": {
-                "TikTok": {"views": 25000, "likes": 2100, "shares": 450},
-                "Instagram": {"views": 15000, "likes": 1280, "comments": 230},
-                "YouTube": {"views": 5230, "likes": 420, "comments": 89}
-            }
-        }
-        
-        return json.dumps(metrics, indent=2)
-    
-    def stop_campaigns(self):
-        """Detener todas las campañas"""
-        self.campaign_status = "stopped"
-        return "✅ Todas las campañas detenidas"
+def launch_campaign(artist, track, genre, video_prompt, platforms):
+    if not artist or not track:
+        return "❌ Completa artista y track"
+    captions = copy_generator.generate_captions(track, artist, genre or "trap", count=3)
+    hashtags = copy_generator.generate_hashtags(genre or "trap")
+    campaign = {"id": f"CAMP_{datetime.now().strftime('%Y%m%d%H%M%S')}", "artist": artist, 
+                "track": track, "status": "active", "captions": captions, "hashtags": hashtags}
+    campaigns_db.append(campaign)
+    return f"✅ CAMPAÑA LANZADA\n\nID: {campaign['id']}\nArtista: {artist}\nTrack: {track}\n\n" \
+           f"Captions:\n1. {captions[0]}\n2. {captions[1]}\n3. {captions[2]}\n\nHashtags: {' '.join(hashtags[:5])}"
 
-# Instancia global
-controller = ProductionController()
+def get_metrics():
+    if not campaigns_db:
+        return "📊 No hay campañas activas"
+    return f"📊 MÉTRICAS\n\n🎯 Campañas: {len(campaigns_db)}\n⚡ Activas: {sum(1 for c in campaigns_db if c['status']=='active')}"
 
-# Interfaz Gradio
-def create_interface():
-    with gr.Blocks(title="🎵 Production Controller", theme=gr.themes.Soft()) as interface:
-        gr.Markdown("# 🎵 PRODUCTION CONTROLLER")
-        gr.Markdown("### Control centralizado de campañas virales musicales")
-        
-        with gr.Tab("🚀 Lanzar Campaña"):
+def generate_copy(track, artist, genre):
+    if not track or not artist:
+        return "⚠️ Completa track y artista"
+    captions = copy_generator.generate_captions(track, artist, genre or "trap", count=5)
+    hashtags = copy_generator.generate_hashtags(genre or "trap")
+    return f"✅ COPY GENERADO\n\n🎵 {track} - {artist}\n\n" + "\n".join([f"{i+1}. {c}" for i,c in enumerate(captions)]) + \
+           f"\n\n#️⃣ {' '.join(hashtags)}"
+
+with gr.Blocks(title="Production Controller", theme=gr.themes.Soft()) as demo:
+    gr.Markdown("# 🎵 PRODUCTION CONTROLLER")
+    with gr.Tabs():
+        with gr.Tab("🚀 Lanzar"):
             with gr.Row():
                 with gr.Column():
-                    artist_input = gr.Textbox(label="Nombre del Artista", placeholder="Ej: Bad Bunny")
-                    track_input = gr.Textbox(label="Nombre del Track", placeholder="Ej: Tití Me Preguntó")
-                    video_prompt = gr.Textbox(
-                        label="Prompt para Video IA", 
-                        placeholder="Ej: Artista de trap en estudio con luces neón moradas",
-                        lines=3
-                    )
-                    platforms = gr.CheckboxGroup(
-                        ["TikTok", "Instagram", "YouTube", "Meta Ads"],
-                        label="Plataformas",
-                        value=["TikTok", "Instagram"]
-                    )
-                    
-                    launch_btn = gr.Button("🔴 LANZAR CAMPAÑA VIRAL", variant="primary", size="lg")
-                
+                    artist = gr.Textbox(label="Artista")
+                    track = gr.Textbox(label="Track")
+                    genre = gr.Dropdown(["trap","reggaeton","rap"], label="Género", value="trap")
+                    video = gr.Textbox(label="Video prompt (opcional)", lines=2)
+                    platforms = gr.CheckboxGroup(["TikTok","Instagram","YouTube"], label="Plataformas", value=["TikTok"])
+                    btn = gr.Button("🔴 LANZAR", variant="primary")
                 with gr.Column():
-                    launch_output = gr.JSON(label="Resultado del Lanzamiento")
-            
-            launch_btn.click(
-                fn=controller.launch_viral_campaign,
-                inputs=[artist_input, track_input, video_prompt, platforms],
-                outputs=launch_output
-            )
-        
-        with gr.Tab("📊 Métricas en Vivo"):
+                    output = gr.Textbox(label="Resultado", lines=20)
+            btn.click(launch_campaign, [artist,track,genre,video,platforms], output)
+        with gr.Tab("✍️ Copy"):
             with gr.Row():
-                metrics_output = gr.JSON(label="Métricas de Campañas Activas")
-                refresh_btn = gr.Button("🔄 Actualizar Métricas")
-            
-            refresh_btn.click(
-                fn=controller.get_campaign_metrics,
-                outputs=metrics_output
-            )
-        
-        with gr.Tab("⚙️ Control"):
-            with gr.Column():
-                gr.Markdown("### Controles de Sistema")
-                stop_btn = gr.Button("🛑 Detener Todas las Campañas", variant="stop")
-                stop_output = gr.Textbox(label="Estado")
-            
-            stop_btn.click(
-                fn=controller.stop_campaigns,
-                outputs=stop_output
-            )
-        
-        gr.Markdown("---")
-        gr.Markdown("💜 **Stakazo Discográfica ML System** | Powered by OpenAI o1")
-    
-    return interface
+                with gr.Column():
+                    copy_track = gr.Textbox(label="Track")
+                    copy_artist = gr.Textbox(label="Artista")
+                    copy_genre = gr.Dropdown(["trap","reggaeton"], value="trap")
+                    copy_btn = gr.Button("✨ Generar")
+                with gr.Column():
+                    copy_out = gr.Textbox(label="Copy", lines=25)
+            copy_btn.click(generate_copy, [copy_track,copy_artist,copy_genre], copy_out)
+        with gr.Tab("📊 Métricas"):
+            metrics_out = gr.Textbox(label="Métricas", lines=20)
+            gr.Button("🔄 Actualizar").click(get_metrics, outputs=metrics_out)
+    gr.Markdown("💜 Stakazo System")
 
 if __name__ == "__main__":
-    interface = create_interface()
-    interface.launch(
-        server_name="0.0.0.0",
-        server_port=7860,
-        share=False
-    )
+    demo.launch(server_name="0.0.0.0", server_port=int(os.getenv("GRADIO_PORT", 7860)), share=False)
