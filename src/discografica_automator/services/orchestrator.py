@@ -160,8 +160,16 @@ class MLOrchestrator:
             return True
         except Exception as e:
             self.client = None
-            self.api_key_status = f"invalid: {e}"
-            logger.error(f"❌ OpenAI API Key inválida: {e}")
+            # Extrae el mensaje exacto si es AuthenticationError de OpenAI
+            error_msg = str(e)
+            if hasattr(e, 'response') and hasattr(e.response, 'json'):
+                try:
+                    error_json = e.response.json()
+                    error_msg = error_json.get('error', {}).get('message', error_msg)
+                except Exception:
+                    pass
+            self.api_key_status = f"invalid: {error_msg}"
+            logger.error(f"❌ OpenAI API Key inválida: {error_msg}")
             return False
 
     def get_api_key_status(self) -> str:
