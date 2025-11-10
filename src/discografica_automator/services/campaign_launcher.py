@@ -27,7 +27,7 @@ def launch_campaign(campaign_id: str):
         # 1. Generar copys
         update_campaign_status(campaign_id, CampaignStatus.GENERATING_CAPTIONS)
         logging.info(f"Generando captions para la campaña {campaign_id}...")
-        captions = copy_generator.generate_captions(campaign.artist, campaign.track)
+        captions = copy_generator.generate_captions(campaign.track, campaign.artist)
         logging.info(f"Captions generados para {campaign_id}: {captions}")
 
         # 2. Generar video

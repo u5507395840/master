@@ -8,7 +8,7 @@ import os
 
 logger = logging.getLogger(__name__)
 
-def generate_video_from_prompt(prompt: str, output_dir: str = "data/videos") -> str:
+def generate_video(prompt: str, output_dir: str = "data/videos") -> str:
     """Simula la generación de un video y retorna la ruta al archivo."""
     os.makedirs(output_dir, exist_ok=True)
     
