@@ -146,6 +146,70 @@ class MLOrchestrator:
                 } for i in range(5)
             ]
         }
+    
+    def set_api_key(self, api_key: str) -> bool:
+        """Permite configurar dinámicamente la API Key de OpenAI y valida su estado."""
+        try:
+            from openai import OpenAI
+            self.client = OpenAI(api_key=api_key)
+            self.api_key = api_key
+            # Validar la key con una llamada mínima
+            response = self.client.models.list()
+            self.api_key_status = "valid"
+            logger.info("✅ OpenAI API Key válida y configurada.")
+            return True
+        except Exception as e:
+            self.client = None
+            self.api_key_status = f"invalid: {e}"
+            logger.error(f"❌ OpenAI API Key inválida: {e}")
+            return False
+
+    def get_api_key_status(self) -> str:
+        """Devuelve el estado actual de la API Key (válida/no válida/mensaje de error)."""
+        return getattr(self, "api_key_status", "not set")
+
+    def calculate_roi(self, campaign_data: dict) -> dict:
+        """
+        Calcula el ROI y métricas clave de una campaña Meta Ads.
+        Espera un dict con: 'spend_eur', 'revenue_eur', 'clicks', 'conversions', 'impressions'.
+        Devuelve un dict con ROI, CPC, CPM, tasa de conversión, etc.
+        """
+        spend = campaign_data.get('spend_eur', 0)
+        revenue = campaign_data.get('revenue_eur', 0)
+        clicks = campaign_data.get('clicks', 0)
+        conversions = campaign_data.get('conversions', 0)
+        impressions = campaign_data.get('impressions', 0)
+
+        roi = ((revenue - spend) / spend) * 100 if spend else 0
+        cpc = spend / clicks if clicks else 0
+        cpm = (spend / impressions * 1000) if impressions else 0
+        conversion_rate = (conversions / clicks * 100) if clicks else 0
+
+        return {
+            "roi_percent": round(roi, 2),
+            "cpc_eur": round(cpc, 3),
+            "cpm_eur": round(cpm, 3),
+            "conversion_rate_percent": round(conversion_rate, 2),
+            "spend_eur": spend,
+            "revenue_eur": revenue,
+            "clicks": clicks,
+            "conversions": conversions,
+            "impressions": impressions
+        }
+
+    def get_meta_ads_status(self) -> dict:
+        """
+        Devuelve el estado actual de la integración Meta Ads (tokens, conexión, etc).
+        """
+        import os
+        status = {
+            "META_ACCESS_TOKEN": bool(os.getenv("META_ACCESS_TOKEN")),
+            "META_APP_ID": bool(os.getenv("META_APP_ID")),
+            "META_APP_SECRET": bool(os.getenv("META_APP_SECRET")),
+            "META_AD_ACCOUNT_ID": bool(os.getenv("META_AD_ACCOUNT_ID")),
+        }
+        status["all_ok"] = all(status.values())
+        return status
 
 # Instancia global
 orchestrator = MLOrchestrator()
