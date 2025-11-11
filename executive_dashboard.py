@@ -1,4 +1,3 @@
-
 # =======================
 # IMPORTS Y VARIABLES GLOBALES
 # =======================
@@ -14,7 +13,7 @@ API_URL = "https://<tu-subdominio-railway>.railway.app"
 import streamlit as st
 import requests
 import time
-API_URL = "http://localhost:8000"
+API_URL = "https://saliva-production.up.railway.app"
 
 
 # --- Playground de Prompts IA (Profesional) ---
@@ -40,7 +39,7 @@ with st.form("creative_upload_form"):
             "language": language,
             "notes": notes
         }
-        resp = requests.post(f"{API_URL}/upload_creative", data=data, files=files)
+        resp = requests.post(f"{API_URL}/upload_creative", data=data, files=files, verify=False)
         if resp.status_code == 200:
             st.success("Creativo y metadatos subidos correctamente.")
             result = resp.json()
@@ -170,7 +169,7 @@ with st.form("ia_strategy_advanced_form"):
                 "total_budget": total_budget,
                 "youtube_channel_url": youtube_channel_url,
                 "creativity_level": creativity_level
-            })
+            }, verify=False)
             strategy = resp.json().get("strategy", "[Sin respuesta]")
             st.markdown("**Estrategia argumental generada por IA:**")
             if isinstance(strategy, dict):
@@ -194,7 +193,7 @@ with st.form("auto_satellite_form"):
                 "channel_id": channel_id,
                 "video_metadata": {},  # Se genera automáticamente por la IA
                 "video_file_path": video_file_path
-            })
+            }, verify=False)
             result = resp.json().get("result", [])
             if not result:
                 st.error("No se obtuvo respuesta del backend.")
@@ -217,7 +216,7 @@ with st.form("auto_satellite_form"):
 st.header("📊 Visualización y feedback de campañas")
 st.markdown("Visualización avanzada de resultados y KPIs. (En desarrollo)")
 try:
-    report = requests.get(f"{API_URL}/performance_report", params={"days": 30}).json()
+    report = requests.get(f"{API_URL}/performance_report", params={"days": 30}, verify=False).json()
     st.subheader("Informe de rendimiento simulado")
     st.json(report)
     # Placeholder para gráficas y KPIs
@@ -249,7 +248,7 @@ with st.form("ia_strategy_form"):
                 "total_budget": total_budget,
                 "youtube_channel_url": youtube_channel_url,
                 "creativity_level": creativity_level
-            })
+            }, verify=False)
             strategy = resp.json().get("strategy", "[Sin respuesta]")
             st.markdown("**Estrategia argumental generada por IA:**")
             if isinstance(strategy, dict):
@@ -280,7 +279,7 @@ with st.form("direct_satellite_form"):
                 "channel_id": channel_id,
                 "video_metadata": video_metadata,
                 "video_file_path": video_file_path
-            })
+            }, verify=False)
             result = resp.json().get("result", [])
             if not result:
                 st.error("No se obtuvo respuesta del backend.")
@@ -323,7 +322,7 @@ except Exception as e:
 st.sidebar.header("🔑 OpenAI API Key")
 api_key_input = st.sidebar.text_input("Introduce tu OpenAI API Key", type="password")
 if st.sidebar.button("Validar y guardar API Key"):
-    resp = requests.post(f"{API_URL}/set_openai_key", json={"api_key": api_key_input})
+    resp = requests.post(f"{API_URL}/set_openai_key", json={"api_key": api_key_input}, verify=False)
     if resp.json().get("valid"):
         st.sidebar.success("API Key válida y guardada.")
         st.session_state["chat_history"] = []  # Recargar el chat al cambiar la API Key
@@ -332,7 +331,7 @@ if st.sidebar.button("Validar y guardar API Key"):
     else:
         st.sidebar.error(f"API Key inválida: {resp.json().get('status')}")
 try:
-    api_key_status = requests.get(f"{API_URL}/get_openai_key_status").json()["status"]
+    api_key_status = requests.get(f"{API_URL}/get_openai_key_status", verify=False).json()["status"]
     if api_key_status == "valid":
         st.sidebar.info("Estado de la API Key: ✅ Válida")
     elif api_key_status == "not set":
@@ -359,7 +358,7 @@ if st.button("Enviar a OpenAI") and user_input.strip():
         resp = requests.post(f"{API_URL}/openai_chat", json={
             "prompt": user_input,
             "history": st.session_state["chat_history"]
-        })
+        }, verify=False)
         ai_response = resp.json().get("response", "[Sin respuesta]")
     except Exception as e:
         ai_response = f"[Error de conexión]: {e}"
@@ -375,7 +374,7 @@ for msg in st.session_state["chat_history"]:
 # --- Meta Ads ---
 st.header("💰 Control Meta Ads & ROI")
 try:
-    meta_status = requests.get(f"{API_URL}/meta_ads_status").json()
+    meta_status = requests.get(f"{API_URL}/meta_ads_status", verify=False).json()
     if meta_status["all_ok"]:
         st.success("Meta Ads: ✅ Configuración OK")
     else:
@@ -400,7 +399,7 @@ with st.form("roi_form"):
                 "clicks": clicks,
                 "conversions": conversions,
                 "impressions": impressions
-            }).json()
+            }, verify=False).json()
             st.success("Resultados ROI Meta Ads:")
             st.json(roi_result)
         except Exception as e:
@@ -427,7 +426,7 @@ with st.form("campaign_form"):
                 "budget_eur": budget_eur,
                 "audience": audience,
                 "hashtags": [h.strip() for h in hashtags.split(",") if h.strip()]
-            })
+            }, verify=False)
             st.success(f"Resultado: {resp.json().get('msg')}")
         except Exception as e:
             st.error(f"No se pudo lanzar la campaña: {e}")
@@ -437,7 +436,7 @@ st.header("📊 Informe de Rendimiento")
 performance_days = st.slider("Días de rendimiento analizado", min_value=7, max_value=90, value=30)
 if st.button("Ver informe simulado"):
     try:
-        report = requests.get(f"{API_URL}/performance_report", params={"days": performance_days}).json()
+        report = requests.get(f"{API_URL}/performance_report", params={"days": performance_days}, verify=False).json()
         st.subheader("Informe de rendimiento simulado")
         st.json(report)
     except Exception as e:
