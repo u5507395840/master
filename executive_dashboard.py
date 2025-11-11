@@ -1,3 +1,234 @@
+
+# =======================
+# IMPORTS Y VARIABLES GLOBALES
+# =======================
+import streamlit as st
+import requests
+import time
+API_URL = "http://localhost:8000"
+
+
+# =======================
+# IMPORTS Y VARIABLES GLOBALES
+# =======================
+import streamlit as st
+import requests
+import time
+API_URL = "http://localhost:8000"
+
+
+# --- Playground de Prompts IA (Profesional) ---
+st.header("📝 Playground de Prompts IA (Profesional)")
+
+# Campo para la API Key de OpenAI
+openai_api_key = st.text_input("Introduce tu API Key de OpenAI", type="password", key="openai_api_key")
+
+prompt_playground = st.text_area("Escribe tu prompt personalizado para la IA", "", key="prompt_playground")
+system_prompt_playground = st.text_area("Prompt de sistema (opcional)", "Eres un experto en marketing musical y automatización.", key="system_playground")
+is_serious = st.checkbox("Marcar como prompt serio/productivo", value=False, key="serious_playground")
+
+if "playground_history" not in st.session_state:
+    st.session_state["playground_history"] = []
+
+if st.button("Enviar prompt personalizado", key="btn_playground") and prompt_playground.strip():
+    try:
+        payload = {
+            "prompt": prompt_playground,
+            "system_prompt": system_prompt_playground,
+            "history": st.session_state["playground_history"],
+            "action": "serious" if is_serious else "playground",
+            "openai_api_key": openai_api_key
+        }
+        endpoint = f"{API_URL}/openai_chat" if not is_serious else f"{API_URL}/ia_generate_strategy"
+        resp = requests.post(endpoint, json=payload)
+        playground_response = resp.json().get("response", resp.json().get("strategy", "[Sin respuesta]"))
+        st.session_state["playground_history"].append({"role": "user", "content": prompt_playground})
+        st.session_state["playground_history"].append({"role": "assistant", "content": playground_response})
+        st.markdown("**Respuesta de la IA:**")
+        st.code(playground_response)
+    except Exception as e:
+        st.error(f"Error al enviar el prompt: {e}")
+
+if st.session_state["playground_history"]:
+    st.markdown("### Historial de Prompts IA")
+    for msg in st.session_state["playground_history"]:
+        if msg["role"] == "user":
+            st.markdown(f"**Tú:** {msg['content']}")
+        else:
+            st.markdown(f"**IA:** {msg['content']}")
+
+if "playground_history" not in st.session_state:
+    st.session_state["playground_history"] = []
+
+if st.button("Enviar prompt personalizado") and prompt_playground.strip():
+    try:
+        payload = {
+            "prompt": prompt_playground,
+            "system_prompt": system_prompt_playground,
+            "history": st.session_state["playground_history"],
+            "action": "serious" if is_serious else "playground"
+        }
+        # Si es serio, puedes enviar a un endpoint productivo (ejemplo)
+        endpoint = f"{API_URL}/openai_chat" if not is_serious else f"{API_URL}/ia_generate_strategy"
+        resp = requests.post(endpoint, json=payload)
+        playground_response = resp.json().get("response", resp.json().get("strategy", "[Sin respuesta]"))
+        st.session_state["playground_history"].append({"role": "user", "content": prompt_playground})
+        st.session_state["playground_history"].append({"role": "assistant", "content": playground_response})
+        st.markdown("**Respuesta de la IA:**")
+        st.code(playground_response)
+    except Exception as e:
+        st.error(f"Error al enviar el prompt: {e}")
+
+if st.session_state["playground_history"]:
+    st.markdown("### Historial de Prompts IA")
+    for msg in st.session_state["playground_history"]:
+        if msg["role"] == "user":
+            st.markdown(f"**Tú:** {msg['content']}")
+        else:
+            st.markdown(f"**IA:** {msg['content']}")
+
+import streamlit as st
+import requests
+import time
+API_URL = "http://localhost:8000"
+# --- Estrategia IA argumental avanzada ---
+st.header("🧠 Estrategia IA argumental avanzada")
+with st.form("ia_strategy_advanced_form"):
+    st.markdown("Genera una estrategia argumental y prompts creativos para campañas musicales usando IA avanzada.")
+    total_budget = st.number_input("Presupuesto total (€)", min_value=10.0, value=100.0, key="budget_advanced")
+    youtube_channel_url = st.text_input("URL del canal de YouTube", key="yt_url_advanced")
+    creativity_level = st.selectbox("Nivel de creatividad", ["bajo", "medio", "alto"], index=2, key="creativity_advanced")
+    performance_data = {
+        "views": st.number_input("Vistas", min_value=0, value=10000, key="views_advanced"),
+        "clicks": st.number_input("Clics", min_value=0, value=500, key="clicks_advanced"),
+        "cost": st.number_input("Coste (€)", min_value=0.0, value=50.0, key="cost_advanced")
+    }
+    submitted = st.form_submit_button("Generar estrategia IA avanzada")
+    if submitted:
+        try:
+            resp = requests.post(f"{API_URL}/ia_generate_strategy", json={
+                "performance_data": performance_data,
+                "total_budget": total_budget,
+                "youtube_channel_url": youtube_channel_url,
+                "creativity_level": creativity_level
+            })
+            strategy = resp.json().get("strategy", "[Sin respuesta]")
+            st.markdown("**Estrategia argumental generada por IA:**")
+            st.code(strategy)
+        except Exception as e:
+            st.error(f"Error al generar estrategia IA: {e}")
+
+# --- Automatización publicación en satélites ---
+st.header("🚀 Automatización publicación en cuentas satélite")
+with st.form("auto_satellite_form"):
+    api_keys = st.text_area("API Keys de cuentas satélite (una por línea)", key="api_sat_auto").splitlines()
+    channel_id = st.text_input("ID del canal principal", key="channel_sat_auto")
+    video_title = st.text_input("Título del video", key="title_sat_auto")
+    video_description = st.text_area("Descripción del video", key="desc_sat_auto")
+    video_tags = st.text_input("Tags (separados por coma)", key="tags_sat_auto")
+    video_file_path = st.text_input("Ruta al archivo de video (.mp4)", key="file_sat_auto")
+    submitted = st.form_submit_button("Automatizar publicación")
+    if submitted:
+        video_metadata = {
+            "title": video_title,
+            "description": video_description,
+            "tags": [t.strip() for t in video_tags.split(",") if t.strip()]
+        }
+        try:
+            resp = requests.post(f"{API_URL}/direct_satellite_campaign", json={
+                "api_keys": api_keys,
+                "channel_id": channel_id,
+                "video_metadata": video_metadata,
+                "video_file_path": video_file_path
+            })
+            result = resp.json().get("result", [])
+            if not result:
+                st.error("No se obtuvo respuesta del backend.")
+            else:
+                for idx, res in enumerate(result):
+                    if res.get("status") == "ok":
+                        st.success(f"Cuenta {idx+1}: Video publicado correctamente (ID: {res.get('videoId')})")
+                    else:
+                        st.error(f"Cuenta {idx+1}: Error al publicar - {res.get('error')}")
+        except Exception as e:
+            st.error(f"Error de conexión o backend: {e}")
+
+# --- Visualización avanzada y feedback ---
+st.header("📊 Visualización y feedback de campañas")
+st.markdown("Visualización avanzada de resultados y KPIs. (En desarrollo)")
+try:
+    report = requests.get(f"{API_URL}/performance_report", params={"days": 30}).json()
+    st.subheader("Informe de rendimiento simulado")
+    st.json(report)
+    # Placeholder para gráficas y KPIs
+    st.info("Próximamente: gráficas de rendimiento, KPIs y control granular de campañas.")
+except Exception as e:
+    st.warning(f"No se pudo obtener el informe: {e}")
+# --- Estrategia y prompts creativos IA ---
+st.header("🧠 Estrategia y prompts creativos IA")
+with st.form("ia_strategy_form"):
+    st.markdown("Genera una estrategia argumental y prompts creativos para campañas musicales usando IA.")
+    total_budget = st.number_input("Presupuesto total (€)", min_value=10.0, value=100.0)
+    youtube_channel_url = st.text_input("URL del canal de YouTube")
+    creativity_level = st.selectbox(
+        "Nivel de creatividad",
+        ["bajo", "medio", "alto", "máximo"],
+        index=2
+    )
+    # Simula datos de rendimiento (puedes conectar con el backend real)
+    performance_data = {
+        "views": st.number_input("Vistas", min_value=0, value=10000),
+        "clicks": st.number_input("Clics", min_value=0, value=500),
+        "cost": st.number_input("Coste (€)", min_value=0.0, value=50.0)
+    }
+    submitted = st.form_submit_button("Generar estrategia IA")
+    if submitted:
+        try:
+            resp = requests.post(f"{API_URL}/ia_generate_strategy", json={
+                "performance_data": performance_data,
+                "total_budget": total_budget,
+                "youtube_channel_url": youtube_channel_url,
+                "creativity_level": creativity_level
+            })
+            strategy = resp.json().get("strategy", "[Sin respuesta]")
+            st.markdown("**Estrategia argumental generada por IA:**")
+            st.code(strategy)
+        except Exception as e:
+            st.error(f"Error al generar estrategia IA: {e}")
+# --- Campaña directa en cuentas satélite YouTube ---
+st.header("🎯 Campaña 1 a 1 en cuentas satélite YouTube")
+with st.form("direct_satellite_form"):
+    api_keys = st.text_area("API Keys de cuentas satélite (una por línea)").splitlines()
+    channel_id = st.text_input("ID del canal principal")
+    video_title = st.text_input("Título del video")
+    video_description = st.text_area("Descripción del video")
+    video_tags = st.text_input("Tags (separados por coma)")
+    video_file_path = st.text_input("Ruta al archivo de video (.mp4)")
+    submitted = st.form_submit_button("Lanzar campaña directa")
+    if submitted:
+        video_metadata = {
+            "title": video_title,
+            "description": video_description,
+            "tags": [t.strip() for t in video_tags.split(",") if t.strip()]
+        }
+        try:
+            resp = requests.post(f"{API_URL}/direct_satellite_campaign", json={
+                "api_keys": api_keys,
+                "channel_id": channel_id,
+                "video_metadata": video_metadata,
+                "video_file_path": video_file_path
+            })
+            result = resp.json().get("result", [])
+            if not result:
+                st.error("No se obtuvo respuesta del backend.")
+            else:
+                for idx, res in enumerate(result):
+                    if res.get("status") == "ok":
+                        st.success(f"Cuenta {idx+1}: Video publicado correctamente (ID: {res.get('videoId')})")
+                    else:
+                        st.error(f"Cuenta {idx+1}: Error al publicar - {res.get('error')}")
+        except Exception as e:
+            st.error(f"Error de conexión o backend: {e}")
 """
 Executive Dashboard - Panel de control total para Discográfica ML System
 """

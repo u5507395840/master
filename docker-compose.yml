@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+
   backend:
     build: .
     command: uvicorn executive_api:app --host 0.0.0.0 --port 8000 --reload
@@ -25,6 +26,29 @@ services:
       - .:/app
     depends_on:
       - backend
+    networks:
+      - discografica-net
+
+  metaads:
+    build: .
+    command: python src/discografica_automator/services/meta_ads_service.py
+    environment:
+      - META_ACCESS_TOKEN=${META_ACCESS_TOKEN}
+      - META_APP_ID=${META_APP_ID}
+      - META_APP_SECRET=${META_APP_SECRET}
+      - META_AD_ACCOUNT_ID=${META_AD_ACCOUNT_ID}
+    volumes:
+      - .:/app
+    networks:
+      - discografica-net
+
+  youtube_analytics:
+    build: .
+    command: python analytics_engine.py
+    environment:
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+    volumes:
+      - .:/app
     networks:
       - discografica-net
 

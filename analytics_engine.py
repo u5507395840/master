@@ -113,44 +113,41 @@ df = generate_mock_data()
 
 def get_youtube_performance_report(days: int = 30) -> dict:
     """
-    Simula la obtención de un informe de rendimiento de campañas de Meta Ads
-    enfocadas en dirigir tráfico a YouTube.
+    Obtiene informe de rendimiento y lo procesa con Ultralytics para que OpenAI lo trabaje.
     """
-    # Datos simulados que reflejan el rendimiento de diferentes estrategias
+    # 1. Obtener informe simulado (o real)
     report = {
         "report_duration_days": days,
         "youtube_channel_url": "https://www.youtube.com/channel/UC-ejd_S_a_i3c_d_s_e_g",
         "total_spend_eur": 150.75,
         "total_clicks_to_youtube": 850,
-        "campaign_performance": [
-            {
-                "campaign_name": "Campaña Test A - Fans de Artistas Similares",
-                "spend_eur": 50.25,
-                "clicks": 450,
-                "ctr": "5.2%",
-                "cpc_eur": 0.11,
-                "target_audience": "Usuarios de Instagram y Facebook en España, 18-25 años, interesados en Rosalia, C. Tangana, y Bad Gyal.",
-                "ad_creative_type": "Video corto (Reel) mostrando el estribillo del videoclip."
-            },
-            {
-                "campaign_name": "Campaña Test B - Audiencia Lookalike",
-                "spend_eur": 50.50,
-                "clicks": 250,
-                "ctr": "2.8%",
-                "cpc_eur": 0.20,
-                "target_audience": "Audiencia Lookalike (1%) basada en los seguidores de Instagram del artista.",
-                "ad_creative_type": "Imagen estática con un titular llamativo sobre el nuevo lanzamiento."
-            },
-            {
-                "campaign_name": "Campaña Test C - Intereses Genéricos (Música Urbana)",
-                "spend_eur": 50.00,
-                "clicks": 150,
-                "ctr": "1.5%",
-                "cpc_eur": 0.33,
-                "target_audience": "Usuarios interesados en 'Música urbana', 'Trap' y 'Reggaeton' en general.",
-                "ad_creative_type": "Anuncio de carrusel mostrando varias escenas del videoclip."
-            }
-        ],
-        "summary": "La campaña dirigida a fans de artistas similares (Test A) ha mostrado el mejor rendimiento con un CPC bajo y un CTR alto. La audiencia Lookalike (Test B) es prometedora pero necesita optimización. La audiencia genérica (Test C) es la menos rentable."
+        "campaign_performance": [],
+        "ultralytics_analysis": []
     }
+    # 2. Simular campañas
+    campaigns = [
+        {
+            "campaign_name": "Campaña Test A - Fans de Artistas Similares",
+            "video_file": "video_a.mp4"
+        },
+        {
+            "campaign_name": "Campaña Test B - Audiencia Lookalike",
+            "video_file": "video_b.mp4"
+        },
+        {
+            "campaign_name": "Campaña Test C - Intereses Genéricos (Música Urbana)",
+            "video_file": "video_c.mp4"
+        }
+    ]
+    # 3. Bucle: pasar cada video a Ultralytics y guardar resultado
+    from ml_engine.vision.yolo_analyzer import yolo_analyzer
+    for camp in campaigns:
+        yolo_result = yolo_analyzer.analyze_video(camp["video_file"])
+        report["ultralytics_analysis"].append({
+            "campaign_name": camp["campaign_name"],
+            "video_file": camp["video_file"],
+            "yolo_result": yolo_result
+        })
+    # 4. Resumen mascado para OpenAI
+    report["summary"] = "Análisis visual y de rendimiento listo para procesar por OpenAI."
     return report
