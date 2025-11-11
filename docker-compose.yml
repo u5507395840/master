@@ -1,76 +1,11 @@
 version: '3.8'
 
 services:
-  executive_api:
+  discografica_dummy:
     build: .
-    command: uvicorn executive_api:app --host 0.0.0.0 --port 8000
-    ports:
-      - "8000:8000"
-    networks:
-      - executive_net
+    container_name: discografica-ml-dummy
     restart: always
-
-  executive_dashboard:
-    build: .
-    command: streamlit run executive_dashboard.py --server.address=0.0.0.0 --server.port=80
     ports:
-      - "80:80"
-    networks:
-      - executive_net
-    restart: always
+      - "8080:8080"
+      - "8501:8501"
 
-networks:
-  executive_net:
-    driver: bridge
-          command: streamlit run executive_dashboard.py
-          ports:
-            - "8501:8501"
-          environment:
-            - SUPABASE_URL=${SUPABASE_URL}
-            - SUPABASE_KEY=${SUPABASE_KEY}
-            - OPENAI_API_KEY=${OPENAI_API_KEY}
-          volumes:
-            - .:/app
-
-        telegram_bot:
-          build: .
-          container_name: discografica_telegram_bot
-          command: python3 telegram_bot/bot.py
-          environment:
-            - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-            - OPENAI_API_KEY=${OPENAI_API_KEY}
-          volumes:
-            - .:/app
-
-        ml_engine:
-          build: .
-          container_name: discografica_ml_engine
-          command: python3 -m ml_engine.supabase_connector
-          environment:
-            - SUPABASE_URL=${SUPABASE_URL}
-            - SUPABASE_KEY=${SUPABASE_KEY}
-            - OPENAI_API_KEY=${OPENAI_API_KEY}
-          volumes:
-            - .:/app
-
-        supabase:
-          image: supabase/postgres:latest
-          container_name: discografica_supabase
-          ports:
-            - "5432:5432"
-          environment:
-            POSTGRES_PASSWORD: supabase_pw
-            POSTGRES_DB: supabase_db
-          volumes:
-            - supabase_data:/var/lib/postgresql/data
-
-        ultralytics:
-          image: ultralytics/ultralytics:latest
-          container_name: discografica_ultralytics
-          volumes:
-            - .:/workspace
-          environment:
-            - ULTRALYTICS_MODELS_DIR=/workspace/ml_engine/vision
-
-      volumes:
-        supabase_data:

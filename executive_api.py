@@ -1,21 +1,18 @@
 
-# --- IMPORTS UNIVERSALES PARA DESPLIEGUE GLOBAL ---
 
-
-# --- BLOQUE DE IMPORTS Y REQUIREMENTS ---
-import os
-import sys
-import logging
-import socket
-try:
-    import netifaces
-except ImportError:
-    import subprocess
-    subprocess.run([sys.executable, "-m", "pip", "install", "netifaces"])
-    import netifaces
 from fastapi import FastAPI, File, UploadFile, Body
 from pydantic import BaseModel
-from typing import Optional, Dict, Any, List
+
+# --- Definición de FastAPI al inicio ---
+app = FastAPI()
+
+# --- ENDPOINT: Healthcheck para Railway ---
+@app.get("/health")
+def health():
+    return {"status": "ok", "message": "API is healthy"}
+
+# --- Definición de FastAPI al inicio ---
+app = FastAPI()
 
 
 
@@ -30,24 +27,17 @@ class CreativeUploadRequest(BaseModel):
 
 @app.post("/upload_creative")
 async def upload_creative(artist: str, genre: str, subgenres: str = "", collaborators: str = "", language: str = "es", notes: str = "", file: UploadFile = File(...)):
-    # Guardar archivo en almacenamiento local o bucket (simulado)
-    file_location = f"creatives/{artist}_{genre}_{file.filename}"
-    with open(file_location, "wb") as f:
-        f.write(await file.read())
-    # Guardar metadatos en base de datos (simulado)
-    metadata = {
+    # Dummy response
+    return {"status": "ok", "metadata": {
         "artist": artist,
         "genre": genre,
         "subgenres": subgenres.split(",") if subgenres else [],
         "collaborators": collaborators.split(",") if collaborators else [],
         "language": language,
         "notes": notes,
-        "file": file_location
-    }
-    # Aquí se podría insertar en Supabase o base de datos real
-    return {"status": "ok", "metadata": metadata}
+        "file": f"dummy_path/{artist}_{genre}_file"
+    }}
 # --- Definición de FastAPI al inicio ---
-app = FastAPI()
 app = FastAPI()
 # --- ENDPOINT: Generación de estrategia y prompts creativos por IA ---
 class IAPromptStrategyRequest(BaseModel):
@@ -57,49 +47,18 @@ class IAPromptStrategyRequest(BaseModel):
     creativity_level: str = "alto"
     model: str = "gpt-5"
 
+    # ...existing code...
 @app.post("/ia_generate_strategy")
 def ia_generate_strategy(req: IAPromptStrategyRequest):
-    # Obtener informe procesado por Ultralytics (COCO) y YouTube Analytics
-    from analytics_engine import get_youtube_performance_report, get_youtube_analytics
-    from ml_engine.vision.yolo_analyzer import YOLOAnalyzer
-    # Análisis visual con COCO
-    yolo_analyzer = YOLOAnalyzer(use_coco=True)
-    visual_report = yolo_analyzer.analyze_video(req.youtube_channel_url, use_coco=True)
-    # Métricas de rendimiento
-    performance_report = get_youtube_performance_report(days=30)
-    analytics_report = get_youtube_analytics(req.youtube_channel_url)
-    # Prompt argumental avanzado para OpenAI
-    system_prompt = (
-        "Eres un estratega musical IA experto en campañas virales y creatividad avanzada. "
-        "Analiza los siguientes informes de rendimiento, análisis visual y métricas de YouTube para generar una estrategia argumental detallada, "
-        "incluyendo: \n"
-        "- Acciones concretas para mejorar el rendimiento del canal\n"
-        "- 3 prompts creativos para videos virales\n"
-        "- Propuesta de distribución de presupuesto\n"
-        "- Recomendaciones de contenido viral y colaboraciones\n"
-        "- Sugerencias de plataformas y horarios óptimos\n"
-        f"Nivel de creatividad: {req.creativity_level}."
-    )
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"Informe visual COCO: {visual_report}\nInforme rendimiento: {performance_report}\nInforme YouTube Analytics: {analytics_report}"}
-    ]
-    try:
-        model = getattr(req, "model", "gpt-5")
-        response = orchestrator.client.chat.completions.create(
-            model=model,
-            messages=messages,
-            max_tokens=1500
-        )
-        # Espera una respuesta estructurada en JSON
-        import json
-        try:
-            strategy = json.loads(response.choices[0].message.content)
-        except Exception:
-            strategy = {"raw": response.choices[0].message.content}
-    except Exception as e:
-        strategy = {"error": f"[Error IA]: {e}"}
-    return {"strategy": strategy}
+    # Dummy response
+    return {"strategy": {
+        "actions": ["Mejorar thumbnails", "Publicar en horario óptimo", "Colaborar con artistas emergentes"],
+        "prompts": ["Crea un video viral sobre el proceso creativo", "Haz un reto musical colaborativo", "Cuenta la historia detrás del track"],
+        "budget_distribution": {"YouTube": 40, "Meta Ads": 30, "TikTok": 30},
+        "recommendations": ["Publicar martes y jueves", "Usar hashtags virales"],
+        "creativity_level": req.creativity_level,
+        "model": req.model
+    }}
 # --- ENDPOINT: Campaña 1 a 1 directa en cuentas satélite ---
 class DirectSatelliteCampaignRequest(BaseModel):
     api_keys: list
@@ -107,44 +66,21 @@ class DirectSatelliteCampaignRequest(BaseModel):
     video_metadata: dict
     video_file_path: str
 
+    # ...existing code...
 @app.post("/direct_satellite_campaign")
 def direct_satellite_campaign(req: DirectSatelliteCampaignRequest):
-    """
-    Orquesta la publicación de vídeos en cuentas satélite de YouTube.
-    Optimizado para feedback detallado y control de errores por cuenta.
-    Integra análisis visual COCO y métricas YouTube Analytics para aprendizaje ML.
-    """
-    from discografica_automator.services.orchestrator import orchestrator
-    from ml_engine.vision.yolo_analyzer import YOLOAnalyzer
-    from analytics_engine import get_youtube_analytics
+    # Dummy response
     results = []
-    # Analizar el video y canal principal para obtener estilo y elementos virales
-    analyzer = YOLOAnalyzer(use_coco=True)
-    analysis = analyzer.analyze_video(req.video_file_path, use_coco=True)
-    analytics_report = get_youtube_analytics(req.channel_id)
-    channel_info = {"id": req.channel_id}
-    # Generar prompt y metadatos personalizados para cada cuenta satélite
-    gen_result = orchestrator.generate_satellite_video_prompt(req.video_file_path, channel_info, use_coco=True)
-    metadatos = gen_result.get("metadatos", {})
     for idx, api_key in enumerate(req.api_keys):
-        try:
-            # Aquí iría la llamada real al uploader con api_key, channel_id, metadatos, video_file_path
-            video_id = f"video_{idx+1}_dummy"
-            results.append({
-                "status": "ok",
-                "videoId": video_id,
-                "account": api_key,
-                "analysis": analysis,
-                "analytics": analytics_report,
-                "metadatos": metadatos,
-                "prompt": gen_result.get("prompt", "")
-            })
-        except Exception as e:
-            results.append({
-                "status": "error",
-                "error": str(e),
-                "account": api_key
-            })
+        results.append({
+            "status": "ok",
+            "videoId": f"video_{idx+1}_dummy",
+            "account": api_key,
+            "analysis": "dummy_analysis",
+            "analytics": "dummy_analytics",
+            "metadatos": {},
+            "prompt": "dummy_prompt"
+        })
     return {"result": results}
 # --- ENDPOINT: Automatización completa bajo trigger Meta Ads ---
 class MetaTriggerSatelliteRequest(BaseModel):
@@ -154,33 +90,16 @@ class MetaTriggerSatelliteRequest(BaseModel):
     youtube_channel_url: str
     days: int = 30
 
+    # ...existing code...
 @app.post("/meta_trigger_youtube_satellite")
 def meta_trigger_youtube_satellite(payload: dict):
-    """
-    Recibe triggers de n8n o Meta Ads para lanzar campañas y recoger analítica.
-    Estructura esperada del payload:
-    {
-        "campaign_id": str,
-        "action": str,  # "launch" | "analyze"
-        "meta_ads_data": dict,  # Opcional
-        "youtube_channel_id": str,
-        "video_metadata": dict,  # Opcional
+    # Dummy response
+    return {
+        "status": "ok",
+        "msg": f"Trigger recibido para campaña {payload.get('campaign_id', 'dummy')} con acción {payload.get('action', 'dummy')}"
     }
-    """
-    try:
-        # Simulación de orquestación (reemplazar por lógica real)
-        result = {
-            "status": "ok",
-            "msg": f"Trigger recibido para campaña {payload.get('campaign_id')} con acción {payload.get('action')}"
-        }
-    except Exception as e:
-        result = {
-            "status": "error",
-            "error": str(e)
-        }
-    return result
 
-from tools.gologin_android_manager import GoLoginManager, AndroidSimulatorManager
+
 
 # --- ENDPOINT: Crear perfil GoLogin ---
 class GoLoginProfileRequest(BaseModel):
@@ -188,82 +107,80 @@ class GoLoginProfileRequest(BaseModel):
     name: str
     os_type: str = "android"
 
+    # ...existing code...
 @app.post("/gologin_create_profile")
 def gologin_create_profile(req: GoLoginProfileRequest):
-    manager = GoLoginManager(req.api_token)
-    result = manager.create_profile(req.name, req.os_type)
-    return {"result": result}
+    # Dummy response
+    return {"result": {"profile_id": "dummy_profile_id", "status": "created"}}
 
 # --- ENDPOINT: Lanzar perfil GoLogin ---
 class GoLoginStartProfileRequest(BaseModel):
     api_token: str
     profile_id: str
 
+    # ...existing code...
 @app.post("/gologin_start_profile")
 def gologin_start_profile(req: GoLoginStartProfileRequest):
-    manager = GoLoginManager(req.api_token)
-    result = manager.start_profile(req.profile_id)
-    return {"result": result}
+    # Dummy response
+    return {"result": {"profile_id": req.profile_id, "status": "started"}}
 
 # --- ENDPOINT: Parar perfil GoLogin ---
 class GoLoginStopProfileRequest(BaseModel):
     api_token: str
     profile_id: str
 
+    # ...existing code...
 @app.post("/gologin_stop_profile")
 def gologin_stop_profile(req: GoLoginStopProfileRequest):
-    manager = GoLoginManager(req.api_token)
-    result = manager.stop_profile(req.profile_id)
-    return {"result": result}
+    # Dummy response
+    return {"result": {"profile_id": req.profile_id, "status": "stopped"}}
 
 # --- ENDPOINT: Automatización Android (Appium/ADB) ---
 class AndroidEmulatorRequest(BaseModel):
     avd_name: str
 
+    # ...existing code...
 @app.post("/android_start_emulator")
 def android_start_emulator(req: AndroidEmulatorRequest):
-    manager = AndroidSimulatorManager()
-    manager.start_emulator(req.avd_name)
-    return {"status": "ok", "msg": f"Emulador {req.avd_name} lanzado."}
+    # Dummy response
+    return {"status": "ok", "msg": f"Emulador {req.avd_name} lanzado (dummy)."}
 
 class AndroidInstallApkRequest(BaseModel):
     apk_path: str
     device_id: str = "emulator-5554"
 
+    # ...existing code...
 @app.post("/android_install_apk")
 def android_install_apk(req: AndroidInstallApkRequest):
-    manager = AndroidSimulatorManager()
-    manager.install_apk(req.apk_path, req.device_id)
-    return {"status": "ok", "msg": f"APK {req.apk_path} instalado en {req.device_id}."}
+    # Dummy response
+    return {"status": "ok", "msg": f"APK {req.apk_path} instalado en {req.device_id} (dummy)."}
 
 class AndroidAppiumRequest(BaseModel):
     device_id: str = "emulator-5554"
     port: int = 4723
 
+    # ...existing code...
 @app.post("/android_run_appium")
 def android_run_appium(req: AndroidAppiumRequest):
-    manager = AndroidSimulatorManager()
-    manager.run_appium(req.device_id, req.port)
-    return {"status": "ok", "msg": f"Appium lanzado en {req.device_id}:{req.port}."}
+    # Dummy response
+    return {"status": "ok", "msg": f"Appium lanzado en {req.device_id}:{req.port} (dummy)."}
 
 class AndroidAdbCommandRequest(BaseModel):
     command: list
     device_id: str = "emulator-5554"
 
+    # ...existing code...
 @app.post("/android_execute_adb")
 def android_execute_adb(req: AndroidAdbCommandRequest):
-    manager = AndroidSimulatorManager()
-    output = manager.execute_adb_command(req.command, req.device_id)
-    return {"output": output}
+    # Dummy response
+    return {"output": f"Comando {req.command} ejecutado en {req.device_id} (dummy)."}
 
 # --- ENDPOINT: Trigger Meta Ads para n8n ---
+    # ...existing code...
 @app.post("/metaads_trigger_n8n")
 def metaads_trigger_n8n(payload: dict = Body(...)):
-    # Aquí puedes integrar el trigger con n8n vía webhook o lógica interna
-    # Por ejemplo, lanzar campañas en redes sociales usando los endpoints anteriores
-    # payload puede incluir info de campaña, cuentas, creatividades, etc.
-    # Simulación de respuesta
-    return {"status": "ok", "msg": "Trigger recibido y procesado para automatización de campañas en redes sociales.", "payload": payload}
+    # Dummy response
+    return {"status": "ok", "msg": "Trigger recibido y procesado para automatización de campañas en redes sociales (dummy).", "payload": payload}
 
 """
 API Backend Ejecutivo para gobierno total del sistema musical ML
@@ -289,9 +206,7 @@ except ImportError as e:
 # Añadir el directorio 'src' al PYTHONPATH para encontrar los módulos
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
-from discografica_automator.services.orchestrator import orchestrator
-from uploaders.youtube_satellite_manager import YouTubeSatelliteManager
-from analytics_engine import get_youtube_performance_report
+## Dummy mode: no external imports
 
 app = FastAPI(title="Discográfica ML Executive API", description="Gobierna campañas, IA, Meta Ads, usuarios y más.")
 
@@ -308,18 +223,15 @@ main_channel_info = {}
 def network_info():
     """
     Devuelve información de red útil para despliegue y acceso externo.
-    Incluye IPs locales, interfaces, y puertos recomendados.
+    Incluye IPs locales, interfaces (simplificado), y puertos recomendados.
     """
     info = {}
     info["hostname"] = socket.gethostname()
-    info["interfaces"] = {}
-    if netifaces:
-        for iface in netifaces.interfaces():
-            addrs = netifaces.ifaddresses(iface)
-            ipv4 = addrs.get(netifaces.AF_INET, [])
-            info["interfaces"][iface] = [i["addr"] for i in ipv4 if "addr" in i]
-    else:
-        info["interfaces"] = {"error": "netifaces no instalado"}
+    # Obtener IP local principal
+    try:
+        info["local_ip"] = socket.gethostbyname(socket.gethostname())
+    except Exception:
+        info["local_ip"] = "No disponible"
     info["recommended_ports"] = [80, 443, 8080, 8501]
     return info
 
@@ -340,18 +252,18 @@ class SatelliteMetricsRequest(BaseModel):
     main_channel_id: str
 
 # --- ENDPOINT: Publicar video en cuentas satélite ---
+    # ...existing code...
 @app.post("/satellite_publish_video")
 def satellite_publish_video(req: SatelliteVideoRequest):
-    manager = YouTubeSatelliteManager(req.api_keys, req.main_channel_id)
-    result = manager.publish_video(req.video_metadata, req.video_file_path)
-    return {"result": result}
+    # Dummy response
+    return {"result": [{"status": "ok", "videoId": "dummy_satellite_video"}]}
 
 # --- ENDPOINT: Consultar métricas de cuentas satélite ---
+    # ...existing code...
 @app.post("/satellite_get_metrics")
 def satellite_get_metrics(req: SatelliteMetricsRequest):
-    manager = YouTubeSatelliteManager(req.api_keys, req.main_channel_id)
-    result = manager.get_metrics()
-    return {"metrics": result}
+    # Dummy response
+    return {"metrics": [{"account": "dummy_account", "views": 1000, "likes": 100, "comments": 10}]}
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -388,96 +300,42 @@ def status():
 
 @app.post("/launch_campaign")
 def launch_campaign(req: CampaignLaunchRequest):
-    """
-    Lanza una campaña real (simulada) en las plataformas seleccionadas.
-    """
-    # Aquí iría la lógica real de integración con N8N y los posters
-    logger.info(f"Lanzando campaña: {req.track_name} - {req.artist} en {req.platforms}")
-    return {"result": "ok", "msg": f"Campaña lanzada en {', '.join(req.platforms)}"}
+    # Dummy response
+    return {"result": "ok", "msg": f"Campaña lanzada en {', '.join(req.platforms)} (dummy)"}
 
 @app.post("/calculate_roi")
 def calculate_roi(req: ROIRequest):
-    """
-    Calcula el ROI y métricas clave de una campaña Meta Ads.
-    """
-    result = orchestrator.calculate_roi(req.dict())
-    return result
+    # Dummy response
+    return {"roi": 1.5, "metrics": {"spend_eur": req.spend_eur, "revenue_eur": req.revenue_eur, "clicks": req.clicks, "conversions": req.conversions, "impressions": req.impressions}}
 
 @app.get("/meta_ads_status")
 def meta_ads_status():
-    """
-    Devuelve el estado actual de la integración Meta Ads (tokens/configuración).
-    """
-    return orchestrator.get_meta_ads_status()
+    # Dummy response
+    return {"status": "ok", "msg": "Meta Ads integración dummy"}
 
 @app.get("/performance_report")
 def performance_report(days: int = 30):
-    """
-    Obtiene un informe de rendimiento simulado para pruebas.
-    """
-    return get_youtube_performance_report(days=days)
+    # Dummy response
+    return {"days": days, "performance": "dummy_report"}
 
 @app.post("/set_openai_key")
 def set_openai_key(api_key: str = Body(...)): 
-    """
-    Configura y valida la OpenAI API Key.
-    """
-    ok = orchestrator.set_api_key(api_key)
-    return {"valid": ok, "status": orchestrator.get_api_key_status()}
+    # Dummy response
+    return {"valid": True, "status": "dummy"}
 
 @app.get("/get_openai_key_status")
 def get_openai_key_status():
-    """
-    Devuelve el estado actual de la OpenAI API Key.
-    """
-    return {"status": orchestrator.get_api_key_status()}
+    # Dummy response
+    return {"status": "dummy"}
 
 @app.post("/openai_chat")
 def openai_chat(req: OpenAIChatRequest):
-    """
-    Chat central: responde preguntas, ejecuta acciones, integra automatización y control.
-    """
-    # Construir historial para chat-completions
-    messages = []
-    if req.system_prompt:
-        messages.append({"role": "system", "content": req.system_prompt})
-    if req.history:
-        messages.extend(req.history)
-    messages.append({"role": "user", "content": req.prompt})
-    try:
-        model = getattr(req, "model", None) or "gpt-3.5-turbo"
-        # Si se recibe una API Key, usarla para la llamada
-        if req.openai_api_key:
-            from openai import OpenAI
-            client = OpenAI(api_key=req.openai_api_key)
-            response = client.chat.completions.create(
-                model=model,
-                messages=messages,
-                max_tokens=700
-            )
-        else:
-            response = orchestrator.client.chat.completions.create(
-                model=model,
-                messages=messages,
-                max_tokens=700
-            )
-        ai_reply = response.choices[0].message.content
-    except Exception as e:
-        ai_reply = f"[Error IA]: {e}"
-    # Ejecutar acciones especiales si se solicita
-    action_result = None
-    if req.action:
-        if req.action == "launch_campaign" and req.params:
-            # Lógica para lanzar campaña real
-            action_result = launch_campaign_api(req.params)
-        elif req.action == "calculate_roi" and req.params:
-            action_result = orchestrator.calculate_roi(req.params)
-        # Puedes añadir más acciones: consultar tokens, modo dummy, etc.
-    return {"response": ai_reply, "action_result": action_result}
+    # Dummy response
+    return {"response": "Respuesta dummy IA", "action_result": None}
 
 def launch_campaign_api(params: dict):
-    # Simulación de lanzamiento de campaña (puedes conectar con n8n aquí)
-    return {"result": "ok", "msg": f"Campaña lanzada: {params.get('track_name', 'N/A')}"}
+    # Dummy response
+    return {"result": "ok", "msg": f"Campaña lanzada: {params.get('track_name', 'N/A')} (dummy)"}
 
 # --- ENDPOINT: Recibir vídeos largos (Longcat) ---
 class LongcatUploadRequest(BaseModel):
@@ -490,18 +348,12 @@ def longcat_upload(req: LongcatUploadRequest):
     """
     Recibe un vídeo largo (longcat), lo analiza con Ultralytics y deja preparado el punto para integración con Runway.
     """
-    from ml_engine.vision.yolo_analyzer import yolo_analyzer
-    yolo_result = yolo_analyzer.analyze_video(req.video_file_path)
-    # --- INTEGRACIÓN RUNWAY ---
-    # TODO: Aquí puedes conectar con la API de Runway para procesar el vídeo/audio
-    # Ejemplo:
-    # runway_result = runway_client.process_video(req.video_file_path)
-    runway_result = {"status": "pending", "msg": "Integración Runway aquí"}
+    # Dummy response
     return {
         "channel_id": req.channel_id,
         "video_file_path": req.video_file_path,
         "metadata": req.metadata,
-        "yolo_analysis": yolo_result,
-        "runway_analysis": runway_result,
-        "msg": "Vídeo analizado y listo para distribución y procesamiento avanzado."
+        "yolo_analysis": "dummy_result",
+        "runway_analysis": {"status": "pending", "msg": "Integración Runway dummy"},
+        "msg": "Vídeo analizado y listo para distribución y procesamiento avanzado (dummy)."
     }
