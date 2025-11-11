@@ -6,52 +6,65 @@ services:
     build: .
     command: uvicorn executive_api:app --host 0.0.0.0 --port 8000 --reload
     ports:
-      - "8000:8000"
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-    volumes:
-      - .:/app
-    networks:
-      - discografica-net
+      version: '3.8'
+      services:
+        backend:
+          build: .
+          container_name: discografica_backend
+          ports:
+            - "8000:8000"
+          environment:
+            - SUPABASE_URL=${SUPABASE_URL}
+            - SUPABASE_KEY=${SUPABASE_KEY}
+            - OPENAI_API_KEY=${OPENAI_API_KEY}
+          volumes:
+            - .:/app
+          command: ["python3", "executive_api.py"]
 
-  dashboard:
-    build: .
-    command: streamlit run executive_dashboard.py --server.port 8501 --server.address 0.0.0.0
-    ports:
-      - "8501:8501"
-    environment:
-      - API_URL=http://backend:8000
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-    volumes:
-      - .:/app
-    depends_on:
-      - backend
-    networks:
-      - discografica-net
+        dashboard:
+          build: .
+          container_name: discografica_dashboard
+          ports:
+            - "8501:8501"
+          environment:
+            - SUPABASE_URL=${SUPABASE_URL}
+            - SUPABASE_KEY=${SUPABASE_KEY}
+            - OPENAI_API_KEY=${OPENAI_API_KEY}
+          volumes:
+            - .:/app
+          command: ["streamlit", "run", "executive_dashboard.py"]
 
-  metaads:
-    build: .
-    command: python src/discografica_automator/services/meta_ads_service.py
-    environment:
-      - META_ACCESS_TOKEN=${META_ACCESS_TOKEN}
-      - META_APP_ID=${META_APP_ID}
-      - META_APP_SECRET=${META_APP_SECRET}
-      - META_AD_ACCOUNT_ID=${META_AD_ACCOUNT_ID}
-    volumes:
-      - .:/app
-    networks:
-      - discografica-net
+        telegram_bot:
+          build: .
+          container_name: discografica_telegram_bot
+          environment:
+            - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+            - OPENAI_API_KEY=${OPENAI_API_KEY}
+          volumes:
+            - .:/app
+          command: ["python3", "telegram_bot/bot.py"]
 
-  youtube_analytics:
-    build: .
-    command: python analytics_engine.py
-    environment:
-      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
-    volumes:
-      - .:/app
-    networks:
-      - discografica-net
+        ml_engine:
+          build: .
+          container_name: discografica_ml_engine
+          environment:
+            - SUPABASE_URL=${SUPABASE_URL}
+            - SUPABASE_KEY=${SUPABASE_KEY}
+            - OPENAI_API_KEY=${OPENAI_API_KEY}
+          volumes:
+            - .:/app
+          command: ["python3", "-m", "ml_engine.supabase_connector"]
 
-networks:
-  discografica-net:
-    driver: bridge
+        supabase:
+          image: supabase/postgres:latest
+          container_name: discografica_supabase
+          ports:
+            - "5432:5432"
+          environment:
+            POSTGRES_PASSWORD: supabase_pw
+            POSTGRES_DB: supabase_db
+          volumes:
+            - supabase_data:/var/lib/postgresql/data
+
+      volumes:
+        supabase_data:

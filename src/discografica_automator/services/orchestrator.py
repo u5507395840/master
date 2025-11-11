@@ -10,6 +10,31 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class MLOrchestrator:
+    def get_utm_metrics_from_supabase(self, filters: dict = None):
+        try:
+            from ml_engine.supabase_utm import get_utm_metrics
+            metrics = get_utm_metrics(filters)
+            return metrics
+        except Exception as e:
+            logger.error(f"Error consultando métricas UTM en Supabase: {e}")
+            return []
+    def get_rules_from_supabase(self, platform: str):
+        try:
+            from ml_engine.supabase_connector import get_platform_rules
+            rules = get_platform_rules(platform)
+            return rules
+        except Exception as e:
+            logger.error(f"Error consultando reglas Supabase: {e}")
+            return []
+
+    def register_trigger_in_supabase(self, trigger_data: dict):
+        try:
+            from ml_engine.supabase_connector import insert_campaign_trigger
+            result = insert_campaign_trigger(trigger_data)
+            return result
+        except Exception as e:
+            logger.error(f"Error registrando trigger en Supabase: {e}")
+            return None
     def generate_satellite_video_prompt(self, video_path: str, channel_info: dict = None, use_coco: bool = True) -> dict:
         """
         Analiza el video con YOLO/Ultralytics y genera un prompt y metadatos adaptados al estilo detectado.
@@ -67,33 +92,46 @@ class MLOrchestrator:
         self.current_spend = 0.0
     
     def analyze_system(self, data: dict) -> dict:
+        # Consultar métricas UTM relevantes para la campaña
+        utm_metrics = []
+        if data and isinstance(data, dict):
+            campaign_name = data.get("campaign")
+            if campaign_name:
+                utm_filters = {"campaign": campaign_name}
+                utm_metrics = self.get_utm_metrics_from_supabase(utm_filters)
+                logger.info(f"Métricas UTM para análisis: {utm_metrics}")
+        # Las métricas UTM pueden influir en la estrategia ML y triggers
         """Análisis del sistema con OpenAI"""
         if not self.client or self.current_spend >= self.MAX_BUDGET_EUR:
             return self._fallback_analysis(data)
-        
+
+        # Ejemplo de integración con reglas Supabase
+        platform = data.get("platform", "youtube")
+        rules = self.get_rules_from_supabase(platform)
+        logger.info(f"Reglas activas para {platform}: {rules}")
+
         try:
             prompt = f"Analiza este sistema de automatización musical: {json.dumps(data)}"
-            
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=500
             )
-            
             # Track spend
             tokens = response.usage.total_tokens
             cost = (tokens * 0.0001) * 0.92  # Estimación EUR
             self.current_spend += cost
-            
             logger.info(f"💰 OpenAI cost: €{cost:.4f} (total: €{self.current_spend:.2f})")
-            
+            # Registrar trigger en Supabase
+            trigger_data = {"platform": platform, "analysis": response.choices[0].message.content, "cost_eur": cost}
+            self.register_trigger_in_supabase(trigger_data)
             return {
                 "status": "ok",
                 "analysis": response.choices[0].message.content,
                 "cost_eur": cost,
-                "tokens": tokens
+                "tokens": tokens,
+                "rules": rules
             }
-            
         except Exception as e:
             logger.error(f"Error OpenAI: {e}")
             return self._fallback_analysis(data)
