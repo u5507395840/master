@@ -43,7 +43,8 @@ with st.form("creative_upload_form"):
         resp = requests.post(f"{API_URL}/upload_creative", data=data, files=files)
         if resp.status_code == 200:
             st.success("Creativo y metadatos subidos correctamente.")
-            st.json(resp.json())
+            result = resp.json()
+            st.json(result.get("metadata", result))
         else:
             st.error(f"Error al subir creativo: {resp.text}")
 st.sidebar.header("⚡ Separación de poderes IA")
@@ -172,7 +173,10 @@ with st.form("ia_strategy_advanced_form"):
             })
             strategy = resp.json().get("strategy", "[Sin respuesta]")
             st.markdown("**Estrategia argumental generada por IA:**")
-            st.code(strategy)
+            if isinstance(strategy, dict):
+                st.json(strategy)
+            else:
+                st.code(strategy)
         except Exception as e:
             st.error(f"Error al generar estrategia IA: {e}")
 
@@ -198,11 +202,11 @@ with st.form("auto_satellite_form"):
                 for idx, res in enumerate(result):
                     if res.get("status") == "ok":
                         st.success(f"Cuenta {idx+1}: Video publicado correctamente (ID: {res.get('videoId')})")
-                        st.markdown("**Análisis del video:**")
-                        st.json(res.get("analysis", {}))
-                        st.markdown("**Prompt generado por IA:**")
-                        st.code(res.get("prompt", ""))
-                        st.markdown("**Metadatos generados por IA:**")
+                        st.markdown("**Análisis del video (dummy):**")
+                        st.write(res.get("analysis", "dummy_analysis"))
+                        st.markdown("**Prompt generado por IA (dummy):**")
+                        st.code(res.get("prompt", "dummy_prompt"))
+                        st.markdown("**Metadatos generados por IA (dummy):**")
                         st.json(res.get("metadatos", {}))
                     else:
                         st.error(f"Cuenta {idx+1}: Error al publicar - {res.get('error')}")
@@ -248,7 +252,10 @@ with st.form("ia_strategy_form"):
             })
             strategy = resp.json().get("strategy", "[Sin respuesta]")
             st.markdown("**Estrategia argumental generada por IA:**")
-            st.code(strategy)
+            if isinstance(strategy, dict):
+                st.json(strategy)
+            else:
+                st.code(strategy)
         except Exception as e:
             st.error(f"Error al generar estrategia IA: {e}")
 # --- Campaña directa en cuentas satélite YouTube ---
@@ -281,6 +288,12 @@ with st.form("direct_satellite_form"):
                 for idx, res in enumerate(result):
                     if res.get("status") == "ok":
                         st.success(f"Cuenta {idx+1}: Video publicado correctamente (ID: {res.get('videoId')})")
+                        st.markdown("**Análisis del video (dummy):**")
+                        st.write(res.get("analysis", "dummy_analysis"))
+                        st.markdown("**Prompt generado por IA (dummy):**")
+                        st.code(res.get("prompt", "dummy_prompt"))
+                        st.markdown("**Metadatos generados por IA (dummy):**")
+                        st.json(res.get("metadatos", {}))
                     else:
                         st.error(f"Cuenta {idx+1}: Error al publicar - {res.get('error')}")
         except Exception as e:
