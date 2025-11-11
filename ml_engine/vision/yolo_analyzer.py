@@ -5,21 +5,24 @@ from typing import Dict, List
 import os
 
 class YOLOAnalyzer:
-    def __init__(self):
+    def __init__(self, use_coco: bool = False):
         self.dummy_mode = os.getenv("DUMMY_MODE", "true").lower() == "true"
         self.model = None
-        
+        self.use_coco = use_coco
         if not self.dummy_mode:
             try:
                 from ultralytics import YOLO
-                self.model = YOLO('yolov8n.pt')  # Nano model para velocidad
+                # Permite elegir entre modelo nano o COCO preentrenado
+                model_path = 'yolov8n.pt'
+                if self.use_coco:
+                    model_path = 'yolov8n.pt'  # COCO es el dataset por defecto en YOLOv8
+                self.model = YOLO(model_path)
             except ImportError:
                 print("⚠️ Ultralytics no instalado, usando dummy mode")
                 self.dummy_mode = True
     
-    def analyze_video(self, video_path: str) -> Dict:
+    def analyze_video(self, video_path: str, use_coco: bool = False) -> Dict:
         """Analizar video con YOLO v8"""
-        
         if self.dummy_mode:
             return {
                 "video_path": video_path,
@@ -34,17 +37,20 @@ class YOLOAnalyzer:
                     {"time": "0:30", "key_moment": "transition", "engagement_potential": "medium"}
                 ]
             }
-        
-        # Análisis real con YOLO
+        # Permite forzar el uso de COCO si se requiere
+        if use_coco:
+            try:
+                from ultralytics import YOLO
+                self.model = YOLO('yolov8n.pt')  # COCO dataset por defecto
+            except Exception:
+                pass
         results = self.model(video_path)
-        
         detected_objects = []
         for result in results:
             boxes = result.boxes
             for box in boxes:
                 cls = int(box.cls[0])
                 detected_objects.append(self.model.names[cls])
-        
         return {
             "video_path": video_path,
             "detected_objects": list(set(detected_objects)),

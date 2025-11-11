@@ -18,6 +18,35 @@ API_URL = "http://localhost:8000"
 
 
 # --- Playground de Prompts IA (Profesional) ---
+st.sidebar.header("⚡ Separación de poderes IA")
+st.sidebar.markdown("""
+**Árbol ideográfico de modelos IA:**
+
+Sistema Ejecutivo ML Musical
+│
+├── 1. Conversacional & Bot Telegram (GPT-3.5)
+│     ├─ Playground de prompts IA (dashboard)
+│     ├─ Chat ejecutivo y respuestas rápidas
+│     ├─ Priorización y registro de acciones automáticas
+│     └─ Bot Telegram: Listener, Executor, Interacción Emocional, Expansión Automática
+│
+├── 2. Control ML, Estrategia & Analíticas (GPT-5)
+│     ├─ Orquestador central ML (backend)
+│     ├─ Generación de estrategias avanzadas y prompts creativos
+│     ├─ Automatización de campañas, triggers y publicación en satélites
+│     ├─ Análisis de rendimiento, ROI y KPIs
+│     └─ Decisiones de alto nivel y distribución de presupuesto
+│
+└── 3. Integración y Gobierno
+    ├─ Dashboard: visualización, control y feedback
+    ├─ Endpoints backend: reciben modelo a usar según el flujo
+    └─ Separación clara: eficiencia conversacional (GPT-3.5) vs. profundidad analítica/estratégica (GPT-5)
+""")
+
+# Permitir al usuario seleccionar el modelo IA para cada flujo
+st.sidebar.subheader("Selecciona el modelo IA para cada flujo")
+model_playground = st.sidebar.selectbox("Modelo para Playground Conversacional", ["gpt-3.5-turbo", "gpt-5"], index=0)
+model_strategy = st.sidebar.selectbox("Modelo para Estrategia/Analíticas", ["gpt-5", "gpt-3.5-turbo"], index=0)
 st.header("📝 Playground de Prompts IA (Profesional)")
 
 # Campo para la API Key de OpenAI
@@ -37,7 +66,8 @@ if st.button("Enviar prompt personalizado", key="btn_playground") and prompt_pla
             "system_prompt": system_prompt_playground,
             "history": st.session_state["playground_history"],
             "action": "serious" if is_serious else "playground",
-            "openai_api_key": openai_api_key
+            "openai_api_key": openai_api_key,
+            "model": model_playground if not is_serious else model_strategy
         }
         endpoint = f"{API_URL}/openai_chat" if not is_serious else f"{API_URL}/ia_generate_strategy"
         resp = requests.post(endpoint, json=payload)
@@ -123,22 +153,14 @@ st.header("🚀 Automatización publicación en cuentas satélite")
 with st.form("auto_satellite_form"):
     api_keys = st.text_area("API Keys de cuentas satélite (una por línea)", key="api_sat_auto").splitlines()
     channel_id = st.text_input("ID del canal principal", key="channel_sat_auto")
-    video_title = st.text_input("Título del video", key="title_sat_auto")
-    video_description = st.text_area("Descripción del video", key="desc_sat_auto")
-    video_tags = st.text_input("Tags (separados por coma)", key="tags_sat_auto")
     video_file_path = st.text_input("Ruta al archivo de video (.mp4)", key="file_sat_auto")
     submitted = st.form_submit_button("Automatizar publicación")
     if submitted:
-        video_metadata = {
-            "title": video_title,
-            "description": video_description,
-            "tags": [t.strip() for t in video_tags.split(",") if t.strip()]
-        }
         try:
             resp = requests.post(f"{API_URL}/direct_satellite_campaign", json={
                 "api_keys": api_keys,
                 "channel_id": channel_id,
-                "video_metadata": video_metadata,
+                "video_metadata": {},  # Se genera automáticamente por la IA
                 "video_file_path": video_file_path
             })
             result = resp.json().get("result", [])
@@ -148,6 +170,12 @@ with st.form("auto_satellite_form"):
                 for idx, res in enumerate(result):
                     if res.get("status") == "ok":
                         st.success(f"Cuenta {idx+1}: Video publicado correctamente (ID: {res.get('videoId')})")
+                        st.markdown("**Análisis del video:**")
+                        st.json(res.get("analysis", {}))
+                        st.markdown("**Prompt generado por IA:**")
+                        st.code(res.get("prompt", ""))
+                        st.markdown("**Metadatos generados por IA:**")
+                        st.json(res.get("metadatos", {}))
                     else:
                         st.error(f"Cuenta {idx+1}: Error al publicar - {res.get('error')}")
         except Exception as e:

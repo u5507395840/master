@@ -10,6 +10,48 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class MLOrchestrator:
+    def generate_satellite_video_prompt(self, video_path: str, channel_info: dict = None, use_coco: bool = True) -> dict:
+        """
+        Analiza el video con YOLO/Ultralytics y genera un prompt y metadatos adaptados al estilo detectado.
+        """
+        from ml_engine.vision.yolo_analyzer import YOLOAnalyzer
+        analyzer = YOLOAnalyzer(use_coco=use_coco)
+        analysis = analyzer.analyze_video(video_path, use_coco=use_coco)
+        style = analysis.get("scene_type", "general")
+        viral_elements = analysis.get("viral_elements", [])
+        recommended_platforms = analysis.get("recommended_platforms", [])
+        visual_quality = analysis.get("visual_quality", 8.0)
+        # Prompt para IA generativa
+        prompt = (
+            f"Genera un título, descripción y tags para un video musical estilo '{style}', "
+            f"con elementos virales: {', '.join(viral_elements)}. "
+            f"Recomienda plataformas: {', '.join(recommended_platforms)}. "
+            f"Calidad visual estimada: {visual_quality}. "
+            f"Adapta el contenido al canal principal y tendencias actuales."
+        )
+        # Si hay info del canal, se puede enriquecer el prompt
+        if channel_info:
+            prompt += f" Canal principal: {channel_info.get('name', '')}. "
+        # Llamada a OpenAI para generar metadatos
+        if self.client:
+            try:
+                response = self.client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=400
+                )
+                content = response.choices[0].message.content
+                # Espera un JSON con title, description, tags
+                import json
+                try:
+                    metadatos = json.loads(content)
+                except Exception:
+                    metadatos = {"raw": content}
+                return {"prompt": prompt, "metadatos": metadatos, "analysis": analysis}
+            except Exception as e:
+                return {"error": str(e), "prompt": prompt, "analysis": analysis}
+        else:
+            return {"prompt": prompt, "analysis": analysis, "metadatos": {}}
     """Orquestador central con OpenAI"""
     
     MAX_BUDGET_EUR = 50.0

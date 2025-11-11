@@ -8,6 +8,7 @@ class IAPromptStrategyRequest(BaseModel):
     total_budget: float
     youtube_channel_url: str
     creativity_level: str = "alto"
+    model: str = "gpt-5"
 
 @app.post("/ia_generate_strategy")
 def ia_generate_strategy(req: IAPromptStrategyRequest):
@@ -31,8 +32,9 @@ def ia_generate_strategy(req: IAPromptStrategyRequest):
         {"role": "user", "content": f"Informe completo: {performance_report}"}
     ]
     try:
+        model = getattr(req, "model", "gpt-5")
         response = orchestrator.client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=model,
             messages=messages,
             max_tokens=1500
         )
@@ -58,16 +60,27 @@ def direct_satellite_campaign(req: DirectSatelliteCampaignRequest):
     Orquesta la publicación de vídeos en cuentas satélite de YouTube.
     Optimizado para feedback detallado y control de errores por cuenta.
     """
+    from discografica_automator.services.orchestrator import orchestrator
+    from ml_engine.vision.yolo_analyzer import YOLOAnalyzer
     results = []
+    # Analizar el video y canal principal para obtener estilo y elementos virales
+    analyzer = YOLOAnalyzer(use_coco=True)
+    analysis = analyzer.analyze_video(req.video_file_path, use_coco=True)
+    channel_info = {"id": req.channel_id}
+    # Generar prompt y metadatos personalizados para cada cuenta satélite
+    gen_result = orchestrator.generate_satellite_video_prompt(req.video_file_path, channel_info, use_coco=True)
+    metadatos = gen_result.get("metadatos", {})
     for idx, api_key in enumerate(req.api_keys):
         try:
-            # Simulación de subida (reemplazar por lógica real)
+            # Aquí iría la llamada real al uploader con api_key, channel_id, metadatos, video_file_path
             video_id = f"video_{idx+1}_dummy"
-            # Aquí iría la llamada real al uploader con api_key, channel_id, video_metadata, video_file_path
             results.append({
                 "status": "ok",
                 "videoId": video_id,
-                "account": api_key
+                "account": api_key,
+                "analysis": analysis,
+                "metadatos": metadatos,
+                "prompt": gen_result.get("prompt", "")
             })
         except Exception as e:
             results.append({
@@ -289,6 +302,7 @@ class OpenAIChatRequest(BaseModel):
     action: Optional[str] = None  # Para comandos especiales: lanzar campaña, consultar ROI, etc.
     params: Optional[Dict[str, Any]] = None
     openai_api_key: Optional[str] = None
+    model: Optional[str] = None
 
 @app.get("/status")
 def status():
@@ -354,18 +368,19 @@ def openai_chat(req: OpenAIChatRequest):
         messages.extend(req.history)
     messages.append({"role": "user", "content": req.prompt})
     try:
+        model = getattr(req, "model", None) or "gpt-3.5-turbo"
         # Si se recibe una API Key, usarla para la llamada
         if req.openai_api_key:
             from openai import OpenAI
             client = OpenAI(api_key=req.openai_api_key)
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model=model,
                 messages=messages,
                 max_tokens=700
             )
         else:
             response = orchestrator.client.chat.completions.create(
-                model="gpt-4o-mini",
+                model=model,
                 messages=messages,
                 max_tokens=700
             )
