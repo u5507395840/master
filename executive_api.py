@@ -153,7 +153,6 @@ def meta_trigger_youtube_satellite(payload: dict):
     return result
 
 from tools.gologin_android_manager import GoLoginManager, AndroidSimulatorManager
-app = FastAPI(title="Discográfica ML Executive API", description="Gobierna campañas, IA, Meta Ads, usuarios y más.")
 
 # --- ENDPOINT: Crear perfil GoLogin ---
 class GoLoginProfileRequest(BaseModel):
