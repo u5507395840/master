@@ -277,12 +277,31 @@ from analytics_engine import get_youtube_performance_report
 
 app = FastAPI(title="Discográfica ML Executive API", description="Gobierna campañas, IA, Meta Ads, usuarios y más.")
 
+import socket
+import netifaces
 # --- ENDPOINT: Input de información del canal principal ---
 class MainChannelInputRequest(BaseModel):
     channel_id: str
     info: dict
 
 main_channel_info = {}
+
+# --- ENDPOINT: Información de red y puertos ---
+@app.get("/network_info")
+def network_info():
+    """
+    Devuelve información de red útil para despliegue y acceso externo.
+    Incluye IPs locales, interfaces, y puertos recomendados.
+    """
+    info = {}
+    info["hostname"] = socket.gethostname()
+    info["interfaces"] = {}
+    for iface in netifaces.interfaces():
+        addrs = netifaces.ifaddresses(iface)
+        ipv4 = addrs.get(netifaces.AF_INET, [])
+        info["interfaces"][iface] = [i["addr"] for i in ipv4 if "addr" in i]
+    info["recommended_ports"] = [80, 443, 8080, 8501]
+    return info
 
 @app.post("/main_channel_input")
 def main_channel_input(req: MainChannelInputRequest):

@@ -12,17 +12,27 @@ services:
         backend:
           build: .
           container_name: discografica_backend
-          command: uvicorn executive_api:app --host 0.0.0.0 --port 8000 --reload
-          ports:
-            - "8000:8000"
-          environment:
-            - SUPABASE_URL=${SUPABASE_URL}
-            - SUPABASE_KEY=${SUPABASE_KEY}
-            - OPENAI_API_KEY=${OPENAI_API_KEY}
-          volumes:
-            - .:/app
+  executive_api:
+    build: .
+    command: uvicorn executive_api:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    networks:
+      - executive_net
+    restart: always
 
-        dashboard:
+  executive_dashboard:
+    build: .
+    command: streamlit run executive_dashboard.py --server.address=0.0.0.0 --server.port=80
+    ports:
+      - "80:80"
+    networks:
+      - executive_net
+    restart: always
+
+networks:
+  executive_net:
+    driver: bridge
           build: .
           container_name: discografica_dashboard
           command: streamlit run executive_dashboard.py
