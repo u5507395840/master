@@ -2,12 +2,7 @@
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
-[deploy]
-startCommand = "python app.py"
-healthcheckPath = "/health"
-healthcheckTimeout = 300
-restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 3
+
 
 [deploy.env]
 # ⚠️ IMPORTANTE: Configurar OPENAI_API_KEY en Railway Dashboard
