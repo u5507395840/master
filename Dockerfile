@@ -15,4 +15,4 @@ EXPOSE 8080
 EXPOSE 8501
 
 # Entrypoint: arranca API y dashboard en modo dummy
-CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port 8080 & streamlit run executive_dashboard.py --server.port 8501 --server.address 0.0.0.0"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
