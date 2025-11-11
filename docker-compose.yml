@@ -7,10 +7,12 @@ services:
     command: uvicorn executive_api:app --host 0.0.0.0 --port 8000 --reload
     ports:
       version: '3.8'
+
       services:
         backend:
           build: .
           container_name: discografica_backend
+          command: uvicorn executive_api:app --host 0.0.0.0 --port 8000 --reload
           ports:
             - "8000:8000"
           environment:
@@ -19,11 +21,11 @@ services:
             - OPENAI_API_KEY=${OPENAI_API_KEY}
           volumes:
             - .:/app
-          command: ["python3", "executive_api.py"]
 
         dashboard:
           build: .
           container_name: discografica_dashboard
+          command: streamlit run executive_dashboard.py
           ports:
             - "8501:8501"
           environment:
@@ -32,28 +34,27 @@ services:
             - OPENAI_API_KEY=${OPENAI_API_KEY}
           volumes:
             - .:/app
-          command: ["streamlit", "run", "executive_dashboard.py"]
 
         telegram_bot:
           build: .
           container_name: discografica_telegram_bot
+          command: python3 telegram_bot/bot.py
           environment:
             - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
             - OPENAI_API_KEY=${OPENAI_API_KEY}
           volumes:
             - .:/app
-          command: ["python3", "telegram_bot/bot.py"]
 
         ml_engine:
           build: .
           container_name: discografica_ml_engine
+          command: python3 -m ml_engine.supabase_connector
           environment:
             - SUPABASE_URL=${SUPABASE_URL}
             - SUPABASE_KEY=${SUPABASE_KEY}
             - OPENAI_API_KEY=${OPENAI_API_KEY}
           volumes:
             - .:/app
-          command: ["python3", "-m", "ml_engine.supabase_connector"]
 
         supabase:
           image: supabase/postgres:latest
