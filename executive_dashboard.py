@@ -18,6 +18,34 @@ API_URL = "http://localhost:8000"
 
 
 # --- Playground de Prompts IA (Profesional) ---
+# --- Subida y validación de creativos ---
+st.header("🎬 Subida y validación de creativos")
+with st.form("creative_upload_form"):
+    artist = st.text_input("Artista", "")
+    genre = st.text_input("Género musical", "")
+    subgenres = st.text_input("Subgéneros (separados por coma)", "")
+    collaborators = st.text_input("Colaboradores (separados por coma)", "")
+    language = st.text_input("Idioma", "es")
+    notes = st.text_area("Notas adicionales", "")
+    creative_file = st.file_uploader("Sube el archivo creativo (video, imagen, texto)")
+    submitted = st.form_submit_button("Subir creativo y metadatos")
+    if submitted and creative_file:
+        import requests
+        files = {"file": creative_file}
+        data = {
+            "artist": artist,
+            "genre": genre,
+            "subgenres": subgenres,
+            "collaborators": collaborators,
+            "language": language,
+            "notes": notes
+        }
+        resp = requests.post(f"{API_URL}/upload_creative", data=data, files=files)
+        if resp.status_code == 200:
+            st.success("Creativo y metadatos subidos correctamente.")
+            st.json(resp.json())
+        else:
+            st.error(f"Error al subir creativo: {resp.text}")
 st.sidebar.header("⚡ Separación de poderes IA")
 st.sidebar.markdown("""
 **Árbol ideográfico de modelos IA:**

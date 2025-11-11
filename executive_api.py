@@ -1,4 +1,33 @@
-from fastapi import FastAPI
+# --- ENDPOINT: Subida de creativos y metadatos ---
+from fastapi import File, UploadFile
+class CreativeUploadRequest(BaseModel):
+    artist: str
+    genre: str
+    subgenres: list = []
+    collaborators: list = []
+    language: str = "es"
+    notes: str = ""
+
+@app.post("/upload_creative")
+async def upload_creative(artist: str, genre: str, subgenres: str = "", collaborators: str = "", language: str = "es", notes: str = "", file: UploadFile = File(...)):
+    # Guardar archivo en almacenamiento local o bucket (simulado)
+    file_location = f"creatives/{artist}_{genre}_{file.filename}"
+    with open(file_location, "wb") as f:
+        f.write(await file.read())
+    # Guardar metadatos en base de datos (simulado)
+    metadata = {
+        "artist": artist,
+        "genre": genre,
+        "subgenres": subgenres.split(",") if subgenres else [],
+        "collaborators": collaborators.split(",") if collaborators else [],
+        "language": language,
+        "notes": notes,
+        "file": file_location
+    }
+    # Aquí se podría insertar en Supabase o base de datos real
+    return {"status": "ok", "metadata": metadata}
+# --- Definición de FastAPI al inicio ---
+from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 
 app = FastAPI()
