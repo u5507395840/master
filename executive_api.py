@@ -41,13 +41,19 @@ class IAPromptStrategyRequest(BaseModel):
 
 @app.post("/ia_generate_strategy")
 def ia_generate_strategy(req: IAPromptStrategyRequest):
-    # Obtener informe procesado por Ultralytics
-    from analytics_engine import get_youtube_performance_report
+    # Obtener informe procesado por Ultralytics (COCO) y YouTube Analytics
+    from analytics_engine import get_youtube_performance_report, get_youtube_analytics
+    from ml_engine.vision.yolo_analyzer import YOLOAnalyzer
+    # Análisis visual con COCO
+    yolo_analyzer = YOLOAnalyzer(use_coco=True)
+    visual_report = yolo_analyzer.analyze_video(req.youtube_channel_url, use_coco=True)
+    # Métricas de rendimiento
     performance_report = get_youtube_performance_report(days=30)
+    analytics_report = get_youtube_analytics(req.youtube_channel_url)
     # Prompt argumental avanzado para OpenAI
     system_prompt = (
         "Eres un estratega musical IA experto en campañas virales y creatividad avanzada. "
-        "Analiza el siguiente informe de rendimiento y análisis visual para generar una estrategia argumental detallada, "
+        "Analiza los siguientes informes de rendimiento, análisis visual y métricas de YouTube para generar una estrategia argumental detallada, "
         "incluyendo: \n"
         "- Acciones concretas para mejorar el rendimiento del canal\n"
         "- 3 prompts creativos para videos virales\n"
@@ -58,7 +64,7 @@ def ia_generate_strategy(req: IAPromptStrategyRequest):
     )
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"Informe completo: {performance_report}"}
+        {"role": "user", "content": f"Informe visual COCO: {visual_report}\nInforme rendimiento: {performance_report}\nInforme YouTube Analytics: {analytics_report}"}
     ]
     try:
         model = getattr(req, "model", "gpt-5")
@@ -88,13 +94,16 @@ def direct_satellite_campaign(req: DirectSatelliteCampaignRequest):
     """
     Orquesta la publicación de vídeos en cuentas satélite de YouTube.
     Optimizado para feedback detallado y control de errores por cuenta.
+    Integra análisis visual COCO y métricas YouTube Analytics para aprendizaje ML.
     """
     from discografica_automator.services.orchestrator import orchestrator
     from ml_engine.vision.yolo_analyzer import YOLOAnalyzer
+    from analytics_engine import get_youtube_analytics
     results = []
     # Analizar el video y canal principal para obtener estilo y elementos virales
     analyzer = YOLOAnalyzer(use_coco=True)
     analysis = analyzer.analyze_video(req.video_file_path, use_coco=True)
+    analytics_report = get_youtube_analytics(req.channel_id)
     channel_info = {"id": req.channel_id}
     # Generar prompt y metadatos personalizados para cada cuenta satélite
     gen_result = orchestrator.generate_satellite_video_prompt(req.video_file_path, channel_info, use_coco=True)
@@ -108,6 +117,7 @@ def direct_satellite_campaign(req: DirectSatelliteCampaignRequest):
                 "videoId": video_id,
                 "account": api_key,
                 "analysis": analysis,
+                "analytics": analytics_report,
                 "metadatos": metadatos,
                 "prompt": gen_result.get("prompt", "")
             })
