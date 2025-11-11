@@ -66,5 +66,13 @@ services:
           volumes:
             - supabase_data:/var/lib/postgresql/data
 
+        ultralytics:
+          image: ultralytics/ultralytics:latest
+          container_name: discografica_ultralytics
+          volumes:
+            - .:/workspace
+          environment:
+            - ULTRALYTICS_MODELS_DIR=/workspace/ml_engine/vision
+
       volumes:
         supabase_data:
