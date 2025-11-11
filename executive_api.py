@@ -1,5 +1,25 @@
+
+# --- IMPORTS UNIVERSALES PARA DESPLIEGUE GLOBAL ---
+
+
+# --- BLOQUE DE IMPORTS Y REQUIREMENTS ---
+import os
+import sys
+import logging
+import socket
+try:
+    import netifaces
+except ImportError:
+    import subprocess
+    subprocess.run([sys.executable, "-m", "pip", "install", "netifaces"])
+    import netifaces
+from fastapi import FastAPI, File, UploadFile, Body
+from pydantic import BaseModel
+from typing import Optional, Dict, Any, List
+
+
+
 # --- ENDPOINT: Subida de creativos y metadatos ---
-from fastapi import File, UploadFile
 class CreativeUploadRequest(BaseModel):
     artist: str
     genre: str
@@ -27,9 +47,7 @@ async def upload_creative(artist: str, genre: str, subgenres: str = "", collabor
     # Aquí se podría insertar en Supabase o base de datos real
     return {"status": "ok", "metadata": metadata}
 # --- Definición de FastAPI al inicio ---
-from fastapi import FastAPI, File, UploadFile
-from pydantic import BaseModel
-
+app = FastAPI()
 app = FastAPI()
 # --- ENDPOINT: Generación de estrategia y prompts creativos por IA ---
 class IAPromptStrategyRequest(BaseModel):
@@ -278,7 +296,6 @@ from analytics_engine import get_youtube_performance_report
 app = FastAPI(title="Discográfica ML Executive API", description="Gobierna campañas, IA, Meta Ads, usuarios y más.")
 
 import socket
-import netifaces
 # --- ENDPOINT: Input de información del canal principal ---
 class MainChannelInputRequest(BaseModel):
     channel_id: str
@@ -296,10 +313,13 @@ def network_info():
     info = {}
     info["hostname"] = socket.gethostname()
     info["interfaces"] = {}
-    for iface in netifaces.interfaces():
-        addrs = netifaces.ifaddresses(iface)
-        ipv4 = addrs.get(netifaces.AF_INET, [])
-        info["interfaces"][iface] = [i["addr"] for i in ipv4 if "addr" in i]
+    if netifaces:
+        for iface in netifaces.interfaces():
+            addrs = netifaces.ifaddresses(iface)
+            ipv4 = addrs.get(netifaces.AF_INET, [])
+            info["interfaces"][iface] = [i["addr"] for i in ipv4 if "addr" in i]
+    else:
+        info["interfaces"] = {"error": "netifaces no instalado"}
     info["recommended_ports"] = [80, 443, 8080, 8501]
     return info
 

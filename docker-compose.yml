@@ -1,17 +1,9 @@
 version: '3.8'
 
+
+version: '3.8'
+
 services:
-
-  backend:
-    build: .
-    command: uvicorn executive_api:app --host 0.0.0.0 --port 8000 --reload
-    ports:
-      version: '3.8'
-
-      services:
-        backend:
-          build: .
-          container_name: discografica_backend
   executive_api:
     build: .
     command: uvicorn executive_api:app --host 0.0.0.0 --port 8000
@@ -33,8 +25,6 @@ services:
 networks:
   executive_net:
     driver: bridge
-          build: .
-          container_name: discografica_dashboard
           command: streamlit run executive_dashboard.py
           ports:
             - "8501:8501"
