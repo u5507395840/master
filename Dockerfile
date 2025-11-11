@@ -11,8 +11,7 @@ COPY executive_api.py /app/app.py
 COPY executive_dashboard.py /app/executive_dashboard.py
 
 # Exponer los puertos para API y dashboard
-EXPOSE 8080
-EXPOSE 8501
+EXPOSE 80
 
 # Entrypoint: arranca API y dashboard en modo dummy
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]
