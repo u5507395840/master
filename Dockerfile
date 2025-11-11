@@ -15,4 +15,4 @@ EXPOSE 80
 ENV PORT=80
 
 # Entrypoint: arranca API y dashboard en modo dummy
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "$PORT"]
+CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port $PORT"]
