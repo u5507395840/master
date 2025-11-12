@@ -9,3 +9,9 @@ services:
       - "8080:8080"
       - "8501:8501"
 
+    env_file:
+      - .env
+    volumes:
+      - ./secrets/meta_ads.secret:/app/secrets/meta_ads.secret:ro
+      - ./secrets/youtubeanalyticsonly-1dbb0d479a13.json:/app/secrets/youtubeanalyticsonly-1dbb0d479a13.json:ro
+

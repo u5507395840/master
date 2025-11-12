@@ -1,3 +1,9 @@
+# Additional dependencies for full Docker execution
+psutil
+google-api-python-client
+Pillow
+moviepy
+pytest
 google-api-python-client
 fastapi
 uvicorn
@@ -10,3 +16,13 @@ plotly
 streamlit
 sqlalchemy
 python-multipart
+
+# Extra dependencies for full code coverage
+python-dotenv
+scikit-learn
+Flask
+dash
+gradio
+supabase
+ultralytics
+python-telegram-bot
