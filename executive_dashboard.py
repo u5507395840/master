@@ -11,8 +11,8 @@ if 'import os' not in content:
 
 # Reemplazar URL hardcodeada con variable de entorno
 content = content.replace(
-    'BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")',
-    'BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")'
+    'BACKEND_URL = os.getenv("BACKEND_URL", os.getenv("BACKEND_URL", "http://localhost:8000"))',
+    'BACKEND_URL = os.getenv("BACKEND_URL", os.getenv("BACKEND_URL", "http://localhost:8000"))'
 )
 
 with open('executive_dashboard.py', 'w') as f:
@@ -177,7 +177,7 @@ if st.session_state["playground_history"]:
 import streamlit as st
 import requests
 import time
-API_URL = "http://localhost:8000"
+API_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 # --- Estrategia IA argumental avanzada ---
 st.header("🧠 Estrategia IA argumental avanzada")
 with st.form("ia_strategy_advanced_form"):
@@ -333,7 +333,7 @@ import streamlit as st
 import requests
 import time
 
-API_URL = "http://localhost:8000"
+API_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="Executive Dashboard ML", page_icon="🎛️", layout="wide")
 st.title("🎛️ Panel Ejecutivo - Discográfica ML System")
