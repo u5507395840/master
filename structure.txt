@@ -1,0 +1,133 @@
+.
+├── :"
+├── CODESPACES_GUIDE.md
+├── Dockerfile
+├── LICENSE
+├── New
+├── README.md
+├── alertmanager.yml
+├── alerts.yml
+├── analytics
+│   ├── __init__.py
+│   └── dashboard.py
+├── analytics_engine.py
+├── api_controller.py
+├── auto.sh
+├── build-and-deploy.sh
+├── campaign_manager
+│   ├── __init__.py
+│   └── manager.py
+├── check-permissions.sh
+├── compliance
+│   ├── __init__.py
+│   └── checks.py
+├── core
+│   ├── __init__.py
+│   └── database.py
+├── dashboard.py
+├── decrypt-secrets.sh
+├── demo_test.py
+├── deploy.sh
+├── deploy_local.sh
+├── docker-commands.sh
+├── docker-compose.prod.yml
+├── docker-compose.yml
+├── docs
+│   └── CONTRIBUTING.md
+├── executive_api.py
+├── executive_dashboard.py
+├── executive_dashboard.py.backup
+├── executive_dashboard.py.bak
+├── grafana
+│   └── datasources
+│       └── prometheus.yml
+├── gunicorn.conf.py
+├── healthcheck.sh
+├── loki-config.yml
+├── longcat-repo
+│   └── README.md
+├── main.py
+├── master
+├── ml_engine
+│   ├── __init__.py
+│   ├── metrics_analyzer.py
+│   ├── models.py
+│   ├── supabase_connector.py
+│   ├── supabase_utm.py
+│   └── vision
+│       └── yolo_analyzer.py
+├── mvp_demo.py
+├── n8n_workflows
+│   ├── README.md
+│   └── launch_campaign_workflow.json
+├── nginx.conf
+├── openai_client.py
+├── openai_orchestrator.py
+├── principales:"
+├── production_controller.py
+├── prometheus.yml
+├── promtail-config.yml
+├── railway-deploy.sh
+├── railway.toml
+├── requirements.txt
+├── run.py
+├── run_strategy.py
+├── scripts
+│   ├── README.md
+│   ├── audit_viral_marketing_ai.py
+│   ├── authorize_youtube.py
+│   ├── demo_dashboard.py
+│   └── viral_marketing_audit_20251104_133921.json
+├── secrets
+│   ├── meta_ads.secret
+│   ├── production.secret
+│   └── youtubeanalyticsonly-1dbb0d479a13.json
+├── security
+│   ├── __init__.py
+│   ├── credential_manager.py
+│   └── secrets.py
+├── setup-docker-compose.sh
+├── setup-secrets.sh
+├── src
+│   └── discografica_automator
+│       ├── __init__.py
+│       ├── api
+│       ├── core
+│       ├── dashboard
+│       ├── integrations
+│       └── services
+├── ssl
+│   ├── cert.pem
+│   └── key.pem
+├── start-production.bat
+├── start.sh
+├── start_all.sh
+├── start_dashboard.sh
+├── structure.txt
+├── telegram_bot
+│   └── bot.py
+├── terminal_ui.sh
+├── tests
+│   ├── conftest.py
+│   ├── core
+│   │   └── test_database.py
+│   └── test_smoke.py
+├── tools
+│   ├── gologin_android_manager.py
+│   ├── monitoring
+│   │   └── system_monitor.py
+│   ├── scripts
+│   │   └── run-all-systems.sh
+│   └── verification
+│       └── reports
+├── uploaders
+│   ├── __init__.py
+│   ├── meta_client.py
+│   ├── youtube_client.py
+│   └── youtube_satellite_manager.py
+└── video_generator
+    ├── __init__.py
+    ├── editor.py
+    └── generator.py
+
+34 directories, 97 files

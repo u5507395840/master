@@ -1,17 +1,54 @@
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-*.egg
-*.egg-info
-dist
-build
+# Git
 .git
 .gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# Secrets
 .env
+*.secret
+secrets/*.json
+secrets/*.secret
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Docs y tests
+docs/
+tests/
 *.md
-.vscode
-.idea
+README.md
+
+# Build artifacts
+*.backup
+*.bak
 *.log
+
+# Deploy scripts
+*.sh
+*.bat
+docker-compose*.yml
+prometheus.yml
+grafana/
+ssl/
+alertmanager.yml
+alerts.yml
+loki-config.yml
+promtail-config.yml
+
+# Otros repos
+longcat-repo/
+n8n_workflows/
+
+# OS
+.DS_Store
+Thumbs.db
