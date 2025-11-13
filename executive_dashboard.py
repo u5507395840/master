@@ -1,3 +1,31 @@
+# Agregar al inicio de executive_dashboard.py
+cat > fix-backend-url.py << 'EOF'
+import sys
+
+with open('executive_dashboard.py', 'r') as f:
+    content = f.read()
+
+# Agregar import os si no existe
+if 'import os' not in content:
+    content = 'import os\n' + content
+
+# Reemplazar URL hardcodeada con variable de entorno
+content = content.replace(
+    'BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")',
+    'BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")'
+)
+
+with open('executive_dashboard.py', 'w') as f:
+    f.write(content)
+
+print("✅ Backend URL actualizado")
+EOF
+
+python3 fix-backend-url.py
+rm fix-backend-url.py
+git add executive_dashboard.py
+git commit -m "fix: use BACKEND_URL env variable"
+git push
 import os
 # =======================
 # IMPORTS Y VARIABLES GLOBALES
