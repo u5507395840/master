@@ -22,3 +22,6 @@ streamlit run executive_dashboard.py --server.port ${PORT:-8501} --server.addres
 
 # Cleanup
 kill $BACKEND_PID 2>/dev/null
+
+
+
