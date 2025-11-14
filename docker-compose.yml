@@ -1,17 +1,61 @@
 version: '3.8'
 
 services:
-  discografica_dummy:
-    build: .
-    container_name: discografica-ml-dummy
-    restart: always
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
     ports:
-      - "8080:8080"
+      - "8000:8000"
+    environment:
+      - META_API_TOKEN=${META_API_TOKEN}
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+      - ML_ENGINE_URL=http://ml-engine:8001
+    networks:
+      - dogma-net
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    ports:
       - "8501:8501"
+    environment:
+      - BACKEND_URL=http://api:8000
+    depends_on:
+      - api
+    networks:
+      - dogma-net
+    restart: unless-stopped
 
-    env_file:
-      - .env
-    volumes:
-      - ./secrets/meta_ads.secret:/app/secrets/meta_ads.secret:ro
-      - ./secrets/youtubeanalyticsonly-1dbb0d479a13.json:/app/secrets/youtubeanalyticsonly-1dbb0d479a13.json:ro
+  ml-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile.ml
+    ports:
+      - "8001:8001"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - dogma-net
+    restart: unless-stopped
 
+  workers:
+    build:
+      context: .
+      dockerfile: Dockerfile.workers
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - META_API_TOKEN=${META_API_TOKEN}
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+      - API_URL=http://api:8000
+    depends_on:
+      - api
+    networks:
+      - dogma-net
+    restart: unless-stopped
+
+networks:
+  dogma-net:
+    driver: bridge
